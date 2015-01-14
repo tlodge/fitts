@@ -3,15 +3,83 @@ define(['jquery','d3'], function($, d3){
 	"use strict";
 	
 	var
+		
 		width 	= $(document).width(),
 		
 		height 	= $(document).height(),
 		
+		dpi		= 113,
+		
+		enddata 	= [],
+		
+		cmtopx = function(cm){
+			
+			//convert to inches
+			var inches = cm * 0.39370;
+			
+			//mutliply by dpi
+			return inches*dpi
+		},
+		
+		minradiuscm	= 1,
+		
+		maxradiuscm = 4,
+		
+		
+		rscale  = d3.scale.linear().range([cmtopx(minradiuscm), cmtopx(maxradiuscm)]),
+	
+		
+		dragged = function(d){
+			
+			d.x = d3.event.x;
+			d.y = d3.event.y;
+			d3.select(this)
+				.attr("cx", d.x)
+				.attr("cy", d.y)
+				//.style("transform", function(d){return "translate(" + d.x + "px," + d.y + "px)";})
+		},
+	
+	 	intersect = function(c1, c2){
+	 		
+	 		console.log("c1 x is " + c1.x);
+	 		console.log("c2 x is " + c2.x);
+	 		
+	 		var dx = c2.x-c1.x;
+			var dy = -c1.y - -c2.y;
+			
+			var d = Math.sqrt((dy*dy)+(dx*dx));
+			
+			if (d >= (c1.r + c2.r)){
+				return false;
+			}
+			return true;
+	 	},
+	 	
+	 	
+		dragend = function(){
+			var x0 = parseInt(d3.select(this).attr("cx"));
+			var y0 = parseInt(d3.select(this).attr("cy"));
+			var r0  = parseInt(d3.select(this).attr("r"));
+			
+			var x1 = parseInt(d3.select("circle.end").attr("cx"));
+			var y1 = parseInt(d3.select("circle.end").attr("cy"));
+			var r1  = parseInt(d3.select("circle.end").attr("r"));
+		
+			startlastcontact();
+		},
+			
+		drag = d3.behavior.drag()
+			  //.origin(function(d){return {x:d.x, y:d.y};})
+			  .on("drag", dragged)
+			  .on("dragend", dragend),
+			  		
 		svg  	= d3.select("#svg")
 					.attr("width",width)
 					.attr("height",height)
 					.append("g")
 					.attr("class","container"),
+		
+		controlsvisible = false,
 					
 		randomx = function(){
 			return Math.random() * width;
@@ -22,10 +90,103 @@ define(['jquery','d3'], function($, d3){
 		},
 		
 		randomr = function(){
-			return 10 + Math.random() * (Math.min(width-10, height-10)/2)
+			return rscale(Math.random());
 		},
 		
-		start = function(){
+		togglecontrols = function(){
+		
+			if (controlsvisible){
+				svg.select("g.controls")
+					.transition()
+					.duration(500)
+					.attr("transform", "translate(" + ((width/2)-30) + ",0)")
+			}else{
+				svg.select("g.controls")
+					.transition()
+					.duration(500)
+					.attr("transform", "translate(0,0)")
+			}	
+			controlsvisible = !controlsvisible;
+		},
+		
+		settings = function(){
+			var cpanel = svg.append("g")
+							.attr("class", "controls")
+							.attr("transform", "translate(" + ((width/2)-30) + ",0)")
+							 
+			cpanel.append("rect")
+				  .attr("x",  width/2)
+				  .attr("y",  0)
+				  .attr("width", width/2)
+				  .attr("height",height)
+				  .style("fill", "green")
+				  .style("fill-opacity", 0.4)
+				  .style("stroke", "black")
+				  .style("stroke-width", 2)				
+				  .on("click", togglecontrols)
+		},
+		
+		startlastcontact  = function(){
+		
+			var r0 = randomr();
+			
+			var startdata = enddata.length > 0 ? enddata: [
+						{x:Math.min(Math.max(r0,randomx()), width-r0),
+						 y:(Math.min(Math.max(r0,randomy()), height-r0)), 
+						 r:r0}];
+						 
+			var r1 = randomr();
+			
+			//console.log("tyhey intersect : " + intersect(enddata[0], startdata[0]));
+			enddata   	  = [
+						{x:Math.min(Math.max(r1,randomx()), width-r1),
+						 y:(Math.min(Math.max(r1,randomy()), height-r1)), 
+						 r:r1}];
+			
+			//create a new random position if these intersect
+			while (intersect(enddata[0], startdata[0])){
+				enddata = [
+						{x:Math.min(Math.max(r1,randomx()), width-r1),
+						 y:(Math.min(Math.max(r1,randomy()), height-r1)), 
+						 r:r1}];
+			}
+			
+			var c1 =  svg.selectAll("circle.start")
+						  .data(startdata, function(d){return [d.x,d.y,d.r]});
+			
+			var c2 =  svg.selectAll("circle.end")
+						  .data(enddata, function(d){return [d.x,d.y,d.r]});
+			
+			c2
+				.enter()
+				.append("circle")
+				.attr("class", "end")
+				.attr("cx", function(d){return d.x})
+				.attr("cy", function(d){return d.y})
+				.attr("r", function(d){return d.r})
+				.style("stroke", "green")
+				.style("stroke-opacity", "1.0")
+				.style("fill", "green")
+				.style("fill-opacity", 0.3)
+			
+			c1
+				.enter()
+				.append("circle")
+				.attr("class", "start")
+				.attr("cx", function(d){return d.x})
+				.attr("cy", function(d){return d.y})
+				.attr("r", function(d){return d.r})
+				.style("stroke", "red")
+				.style("stroke-opacity", "1.0")
+				.style("fill", "red")
+				.style("fill-opacity", 0.3)
+				.call(drag)
+				
+			c1.exit().remove();
+			c2.exit().remove();
+		},
+		
+		startfirstcontact = function(){
 		
 			var data = [{x:randomx(), y:randomy(), r:randomr()}];
 				
@@ -56,8 +217,13 @@ define(['jquery','d3'], function($, d3){
 		},
 		
 		
+		
+		
 		init = function(){
-			start();	
+			rscale.domain([0, 1]);
+			settings();
+			//startfirstcontact();	
+			startlastcontact();
 		}
 	
 	return{
