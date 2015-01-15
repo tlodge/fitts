@@ -79,7 +79,7 @@ define(['jquery','d3'], function($, d3){
 			  								d3.event.sourceEvent.stopPropagation();
 			  								startfirstcontact()
 			  							}),
-			  	  		
+	  	  		
 		svg  	= d3.select("#svg")
 					.attr("width",width)
 					.attr("height",height)
@@ -142,8 +142,8 @@ define(['jquery','d3'], function($, d3){
 				  .style("fill-opacity", 1.0)
 				  .style("stroke", "black")
 				  .style("stroke-width", 1)				
-				  .on("click", togglecontrols)
-			
+				  .call(d3.behavior.drag().on("dragstart", function(){togglecontrols();}))
+				  
 			cpanel.append("rect")
 				  .attr("x",  width/2)
 				  .attr("y",  height-buttonheight-padding-padding)
@@ -165,7 +165,7 @@ define(['jquery','d3'], function($, d3){
 				  .style("fill-opacity", 1.0)
 				  .style("stroke", "black")
 				  .style("stroke-width", 1)				
-				  .on("click", function(d){reset(startfirstcontact)})
+				  .call(d3.behavior.drag().on("dragstart", function(){reset(startfirstcontact);}))
 			
 				
 			cpanel
@@ -178,7 +178,8 @@ define(['jquery','d3'], function($, d3){
 	  			  .style("fill", "#000")
 	  			  .style("font-size", (buttonheight*0.5 + "px"))
 	  			  .text("experiment one")
-	  			  .on("click", function(d){reset(startfirstcontact)})
+	  			  .call(d3.behavior.drag().on("dragstart", function(){reset(startfirstcontact);}))
+	  			  
 	  			  
 			cpanel.append("rect")
 				  .attr("rx", 5)
@@ -190,7 +191,7 @@ define(['jquery','d3'], function($, d3){
 				  .style("fill-opacity", 1.0)
 				  .style("stroke", "black")
 				  .style("stroke-width", 1)				
-				  .on("click", function(d){reset(startlastcontact)})
+				  .call(d3.behavior.drag().on("dragstart", function(){reset(startlastcontact);}))
 		
 			cpanel
 				  .append("text")
@@ -202,7 +203,7 @@ define(['jquery','d3'], function($, d3){
 	  			  .style("fill", "#000")
 	  			  .style("font-size", (buttonheight*0.5 + "px"))
 	  			  .text("experiment two")	  
-				  .on("click", function(d){reset(startlastcontact)})
+				  .call(d3.behavior.drag().on("dragstart", function(){reset(startlastcontact);}))
 		},
 		
 		startlastcontact  = function(){
