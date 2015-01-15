@@ -72,7 +72,14 @@ define(['jquery','d3'], function($, d3){
 			  //.origin(function(d){return {x:d.x, y:d.y};})
 			  .on("drag", dragged)
 			  .on("dragend", dragend),
-			  		
+		
+		dragtouch = d3.behavior.drag()
+			  .on("dragstart", function(){
+			  								console.log("dragstart!");
+			  								d3.event.sourceEvent.stopPropagation();
+			  								startfirstcontact()
+			  							}),
+			  	  		
 		svg  	= d3.select("#svg")
 					.attr("width",width)
 					.attr("height",height)
@@ -169,7 +176,7 @@ define(['jquery','d3'], function($, d3){
 				  .attr("y",height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
-	  			  .style("font-size", (buttonheight*0.8 + "px"))
+	  			  .style("font-size", (buttonheight*0.5 + "px"))
 	  			  .text("experiment one")
 	  			  .on("click", function(d){reset(startfirstcontact)})
 	  			  
@@ -193,7 +200,7 @@ define(['jquery','d3'], function($, d3){
 				  .attr("y", height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
-	  			  .style("font-size", (buttonheight*0.8 + "px"))
+	  			  .style("font-size", (buttonheight*0.5 + "px"))
 	  			  .text("experiment two")	  
 				  .on("click", function(d){reset(startlastcontact)})
 		},
@@ -283,7 +290,8 @@ define(['jquery','d3'], function($, d3){
 				.style("stroke-opacity", "1.0")
 				.style("fill", "red")
 				.style("fill-opacity", 0.3)
-				.on("click", startfirstcontact);
+				.on("click", startfirstcontact)
+				.call(dragtouch);
 	
 			circle
 				.exit()
