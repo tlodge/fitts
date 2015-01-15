@@ -12,7 +12,7 @@ define(['jquery','d3'], function($, d3){
 		
 		enddata 	= [],
 		
-		menuwidth = 20,
+		menuwidth = 30,
 		
 		cmtopx = function(cm){
 			
