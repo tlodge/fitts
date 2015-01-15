@@ -12,6 +12,8 @@ define(['jquery','d3'], function($, d3){
 		
 		enddata 	= [],
 		
+		menuwidth = 20,
+		
 		cmtopx = function(cm){
 			
 			//convert to inches
@@ -41,9 +43,7 @@ define(['jquery','d3'], function($, d3){
 	
 	 	intersect = function(c1, c2){
 	 		
-	 		console.log("c1 x is " + c1.x);
-	 		console.log("c2 x is " + c2.x);
-	 		
+	 	
 	 		var dx = c2.x-c1.x;
 			var dy = -c1.y - -c2.y;
 			
@@ -99,7 +99,7 @@ define(['jquery','d3'], function($, d3){
 				svg.select("g.controls")
 					.transition()
 					.duration(500)
-					.attr("transform", "translate(" + ((width/2)-30) + ",0)")
+					.attr("transform", "translate(" + ((width/2)-menuwidth) + ",0)")
 			}else{
 				svg.select("g.controls")
 					.transition()
@@ -109,21 +109,93 @@ define(['jquery','d3'], function($, d3){
 			controlsvisible = !controlsvisible;
 		},
 		
+		reset = function(callback){
+			togglecontrols();
+			svg.selectAll("circle")
+				.remove();
+			callback();
+		},
+		
 		settings = function(){
+			
+			var padding = width/50;
+			var buttonheight = height/15;
+			var buttonwidth  = (width/2 - padding*3)/2
+			
 			var cpanel = svg.append("g")
 							.attr("class", "controls")
-							.attr("transform", "translate(" + ((width/2)-30) + ",0)")
+							.attr("transform", "translate(" + ((width/2)-menuwidth) + ",0)")
 							 
 			cpanel.append("rect")
 				  .attr("x",  width/2)
 				  .attr("y",  0)
 				  .attr("width", width/2)
 				  .attr("height",height)
-				  .style("fill", "green")
-				  .style("fill-opacity", 0.4)
+				  .style("fill", "white")
+				  .style("fill-opacity", 1.0)
 				  .style("stroke", "black")
-				  .style("stroke-width", 2)				
+				  .style("stroke-width", 1)				
 				  .on("click", togglecontrols)
+			
+			cpanel.append("rect")
+				  .attr("x",  width/2)
+				  .attr("y",  height-buttonheight-padding-padding)
+				  .attr("width", width/2)
+				  .attr("height",buttonheight+padding+padding)
+				  .style("fill", "#30363c")
+				  .style("fill-opacity", 1.0)
+				  .style("stroke", "black")
+				  .style("stroke-width", 1)				
+				  
+			
+			cpanel.append("rect")
+				  .attr("rx", 5)
+				  .attr("x",  width/2 + padding)
+				  .attr("y",  height-buttonheight-padding)
+				  .attr("width", buttonwidth)
+				  .attr("height",buttonheight)
+				  .style("fill", "white")
+				  .style("fill-opacity", 1.0)
+				  .style("stroke", "black")
+				  .style("stroke-width", 1)				
+				  .on("click", function(d){reset(startfirstcontact)})
+			
+				
+			cpanel
+				  .append("text")
+				  .attr("class", "buttonlabel")
+				  .attr("dy", ".3em")
+	  			  .attr("x", width/2 + padding + buttonwidth/2)
+				  .attr("y",height-buttonheight-padding + buttonheight/2)	
+				  .attr("text-anchor", "middle")
+	  			  .style("fill", "#000")
+	  			  .style("font-size", (buttonheight*0.8 + "px"))
+	  			  .text("experiment one")
+	  			  .on("click", function(d){reset(startfirstcontact)})
+	  			  
+			cpanel.append("rect")
+				  .attr("rx", 5)
+				  .attr("x",  width/2 + padding + buttonwidth + padding)
+				  .attr("y",  height-buttonheight-padding)
+				  .attr("width", buttonwidth)
+				  .attr("height",buttonheight)
+				  .style("fill", "white")
+				  .style("fill-opacity", 1.0)
+				  .style("stroke", "black")
+				  .style("stroke-width", 1)				
+				  .on("click", function(d){reset(startlastcontact)})
+		
+			cpanel
+				  .append("text")
+				  .attr("class", "buttonlabel")
+				  .attr("dy", ".3em")
+	  			  .attr("x", width/2 + padding + buttonwidth + padding + buttonwidth/2)
+				  .attr("y", height-buttonheight-padding + buttonheight/2)	
+				  .attr("text-anchor", "middle")
+	  			  .style("fill", "#000")
+	  			  .style("font-size", (buttonheight*0.8 + "px"))
+	  			  .text("experiment two")	  
+				  .on("click", function(d){reset(startlastcontact)})
 		},
 		
 		startlastcontact  = function(){
@@ -137,7 +209,7 @@ define(['jquery','d3'], function($, d3){
 						 
 			var r1 = randomr();
 			
-			//console.log("tyhey intersect : " + intersect(enddata[0], startdata[0]));
+		
 			enddata   	  = [
 						{x:Math.min(Math.max(r1,randomx()), width-r1),
 						 y:(Math.min(Math.max(r1,randomy()), height-r1)), 
@@ -157,21 +229,11 @@ define(['jquery','d3'], function($, d3){
 			var c2 =  svg.selectAll("circle.end")
 						  .data(enddata, function(d){return [d.x,d.y,d.r]});
 			
-			c2
-				.enter()
-				.append("circle")
-				.attr("class", "end")
-				.attr("cx", function(d){return d.x})
-				.attr("cy", function(d){return d.y})
-				.attr("r", function(d){return d.r})
-				.style("stroke", "green")
-				.style("stroke-opacity", "1.0")
-				.style("fill", "green")
-				.style("fill-opacity", 0.3)
+			
 			
 			c1
 				.enter()
-				.append("circle")
+				.insert("circle", ":first-child")
 				.attr("class", "start")
 				.attr("cx", function(d){return d.x})
 				.attr("cy", function(d){return d.y})
@@ -181,6 +243,18 @@ define(['jquery','d3'], function($, d3){
 				.style("fill", "red")
 				.style("fill-opacity", 0.3)
 				.call(drag)
+				
+			c2
+				.enter()
+				.insert("circle", ":first-child")
+				.attr("class", "end")
+				.attr("cx", function(d){return d.x})
+				.attr("cy", function(d){return d.y})
+				.attr("r", function(d){return d.r})
+				.style("stroke", "green")
+				.style("stroke-opacity", "1.0")
+				.style("fill", "green")
+				.style("fill-opacity", 0.3)
 				
 			c1.exit().remove();
 			c2.exit().remove();
@@ -209,7 +283,7 @@ define(['jquery','d3'], function($, d3){
 				.style("stroke-opacity", "1.0")
 				.style("fill", "red")
 				.style("fill-opacity", 0.3)
-				.on("click", start);
+				.on("click", startfirstcontact);
 	
 			circle
 				.exit()
@@ -221,9 +295,10 @@ define(['jquery','d3'], function($, d3){
 		
 		init = function(){
 			rscale.domain([0, 1]);
-			settings();
+			
 			//startfirstcontact();	
 			startlastcontact();
+			settings();
 		}
 	
 	return{
