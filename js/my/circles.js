@@ -4,6 +4,18 @@ define(['jquery','d3'], function($, d3){
 	
 	var
 		
+		mingrid		  = {rows:8, cols:8},
+		
+		runlength 	  = 15,
+		
+		step	  	  = 0.1,
+		
+		radiusrange	  = [0.1, 0.5],
+		
+		positions	  = [],
+	
+		values		  = [],
+			
 		width 	= $(document).width(),
 		
 		height 	= $(document).height(),
@@ -22,13 +34,9 @@ define(['jquery','d3'], function($, d3){
 			//mutliply by dpi
 			return inches*dpi
 		},
+			
 		
-		minradiuscm	= 1,
-		
-		maxradiuscm = 4,
-		
-		
-		rscale  = d3.scale.linear().range([cmtopx(minradiuscm), cmtopx(maxradiuscm)]),
+		rscale  = d3.scale.linear().range([cmtopx(radiusrange[0]), cmtopx(radiusrange[1])]),
 	
 		
 		dragged = function(d){
@@ -39,6 +47,91 @@ define(['jquery','d3'], function($, d3){
 				.attr("cx", d.x)
 				.attr("cy", d.y)
 				//.style("transform", function(d){return "translate(" + d.x + "px," + d.y + "px)";})
+		},
+		
+		
+		/*gcf = function(number){
+			var results = [];
+			for (var i=number-1; i >0; i--){
+				if (number%i == 0){
+					results.push([i, number/i]);
+				}
+			}	
+			return results;
+		},*/
+		
+		shuffle = function(o){
+			for(var j,x,i=o.length;i;j=Math.floor(Math.random()*i),x=o[--i], o[i]=o[j],o[j]=x);
+				return o;
+		},
+		
+		createdata = function(){
+			
+			var steps = Math.max(runlength, radiusrange[1]-radiusrange[0]/step);
+			var count = 0;
+			
+			while(count < steps){
+				for (var i = radiusrange[0]; i <= radiusrange[1]; i+=step){
+					if (++count > steps)
+						break;
+					values.push(i);
+				}
+			}
+			
+			var shuffled = shuffle(values)
+			console.log(shuffled);
+					
+		
+			var colwidth 	= width/mingrid.cols;
+			var colheight 	= height/mingrid.rows;
+			
+			var grid = [];
+			
+			for (var row = 0; row < mingrid.rows; row++){
+				for (var col = 0; col < mingrid.cols; col++){
+					var xrange = [row*colwidth, (row+1)*colwidth];
+					var yrange = [col*colheight,(col+1)*colheight];
+				
+					var randx = xrange[0] + Math.random()*colwidth;
+					var randy = yrange[0] + Math.random()*colheight;
+					grid.push({x:xrange[0], y:yrange[0], w:colwidth, h:colheight});
+					//positions.push({x:xrange[0] + Math.random()*xrange[1], y:yrange[0] + Math.random()*yrange[1]});
+					
+					var radius = randomr();
+					
+					if (shuffled.length > 0){
+						radius = rscale(shuffled.shift());	
+					}
+					
+					positions.push({ x0:xrange[0],	
+									 y0: yrange[0], 
+									 x:Math.max(Math.min(randx, (xrange[0]+colwidth)-radius), xrange[0]+radius), 
+									 y:Math.max(Math.min(randy, (yrange[0]+colheight)-radius), yrange[0]+radius),
+									 r:radius});
+					
+					//positions.push([ [xrange[0], xrange[1]],[yrange[0], yrange[1]]]);
+				}
+			}
+			console.log(positions);
+			svg.selectAll("mycircles")
+				.data(positions)
+				.enter()
+				.append("circle")
+				.attr("cx", function(d){return d.x})
+				.attr("cy", function(d){return d.y})
+				.attr("r", function(d){return d.r})
+				.style("fill", "red")
+				
+			svg.selectAll("mygrid")
+				.data(grid)
+				.enter()
+				.append("rect")
+				.attr("x", function(d){return d.x})
+				.attr("y", function(d){return d.y})
+				.attr("width", function(d){return d.w})
+				.attr("height", function(d){return d.h})
+				.attr("fill", "none")
+				.style("stroke", "black")
 		},
 	
 	 	intersect = function(c1, c2){
@@ -304,7 +397,7 @@ define(['jquery','d3'], function($, d3){
 		
 		init = function(){
 			rscale.domain([0, 1]);
-			
+			createdata();
 			//startfirstcontact();	
 			startlastcontact();
 			settings();
