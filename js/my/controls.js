@@ -47,7 +47,7 @@ define(['jquery','d3'], function($, d3){
 		
 		createcomponent = function(parent, dim, col, row, d){
 	
-			var sliderradius = dim.h/4;
+			var sliderradius = dim.h/6;
 			var x1 = dim.x + sliderradius + dim.w*col;
 			var x2 =  dim.x + dim.w*col + dim.w - sliderradius;
 			var y  =  dim.y + dim.h/2;
@@ -75,6 +75,9 @@ define(['jquery','d3'], function($, d3){
 					  .call(d3.behavior.drag().on("drag", function(d){
 					  		var x = Math.min(Math.max(d3.event.x,x1),x2);
 					  		var value = sliderscale(x);
+					  		d3.select("text.option_" + d.id)
+					  			.text(parseInt(value));
+					  			
 					  		d3.select(this).attr("cx",x);
 					  		
 					  }))
@@ -97,8 +100,8 @@ define(['jquery','d3'], function($, d3){
 			
 			var groupheight = (height / data.length) - (2*rowspacing);
 			var headerheight = groupheight / 4;
-			var leftw 	= (1/10 * width)  
-			var middlew = (6/10 * width) 
+			var leftw 	= (2/10 * width)  
+			var middlew = (5/10 * width) 
 			var rightw 	= (3/10 * width) 
 			
 			var groups = hook.append("g")
@@ -119,6 +122,15 @@ define(['jquery','d3'], function($, d3){
 				  .style("stroke", "black")
 				  .style("fill", "none")
 			
+			group.append("text")
+				 .attr("text-anchor", "middle")
+				 .attr("x", x0 + colspacing + (leftw)/2)
+				 .attr("y",function(d,i){return y0+(i * groupheight) + groupheight/2})
+				 .attr("dy", ".3em")	
+				 .style("fill", "#000")
+	  			 .style("font-size", (headerheight*0.8) + "px")
+	  			 .text(function(d){return d.name})
+				  
 			var components = group.append("g")
 								  .attr("class", "components"); 
 			
@@ -155,8 +167,15 @@ define(['jquery','d3'], function($, d3){
 					.style("stroke", "black")
 					.style("stroke-width", 1)
 					.style("fill", "white")
-					
-					
+			
+			component.append("text")
+					.attr("text-anchor", "middle")
+					.attr("x",function(d,i,j){return (x0 + colspacing*2 + leftw) + (i * (middlew-colspacing*2)/d.items) + ((middlew-colspacing*2)/d.items)/2})
+					.attr("y",function(d,i,j){return y0+(j * groupheight)+(headerheight)/2})
+					  .attr("dy", ".3em")	
+					 .style("fill", "#000")
+	  			  	 .style("font-size", (headerheight*0.8) + "px")
+	  			  	 .text(function(d){return d.name})
 			//RHS SUMMARY BOX
 			
 			group.append("rect")
@@ -216,12 +235,12 @@ define(['jquery','d3'], function($, d3){
 	  			  	 .text(function(d){return d.name})
 					 
 			summary.append("text")
-				   
-	  			   .attr("x",   (x0+colspacing + leftw + middlew) + rightw*3/5 +  rightw/20)
-				    .attr("dy", ".3em")
+				   .attr("class", function(d){return "option_" + d.id})
+	  			   .attr("x",   (x0+colspacing + leftw + middlew) + rightw*3/5 +  rightw/50)
+				   .attr("dy", ".3em")
 				   .attr("y",function(d,i,j){
 				  	 	var colheight = (groupheight-rowspacing)/d.items;
-				  	 	d.fontheight = colheight * 0.4;
+				  	 	d.fontheight = colheight * 0.35;
 				  	 	return (y0 + (groupheight*j) + colheight*i) + colheight/2;
 				  	 	
 				  	 })
