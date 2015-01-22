@@ -7,47 +7,12 @@ define(['jquery','d3'], function($, d3){
 	
 		hook,
 	
-		data = [
-						{
-							name:"grid",
-							components:[
-								{name:"rows", id:"rows", type:"slider", min:1, max:20, value:5},
-								{name:"cols", id:"cols",type:"slider", min:1, max:20, value:5},
-								{name:"visible",id:"visible", type:"button", value: true}
-								
-							]
-						},
-						{
-							name:"DPI",
-							components:[
-								{name:"dpi", id:"dpi", type:"slider", min:30, max:500, value:90},
-							]
-						},
-						{
-							name:"widths",
-							components:[
-								{name:"minmm", id:"minmm", type:"slider", min:10, max:200, value:50},
-								{name:"maxmm", id:"maxmm",type:"slider", min:10, max:200, value:100},
-							]
-						},
-						{
-							name:"step",
-							components:[
-								{name:"step", id:"step", type:"slider", min:1, max:200, value:50},
-							]
-						},
-						{
-							name:"run length",
-							components:[
-								{name:"run length", id:"runlength", type:"slider", min:1, max:1000, value:20},
-							]
-						},
-				
-		],
-		
 		createcomponent = function(parent, dim, col, row, d){
 	
 			var sliderradius = dim.h/6;
+			var buttonradius = dim.h/4;
+			var buttoninnerradius = dim.h/6;
+			
 			var x1 = dim.x + sliderradius + dim.w*col;
 			var x2 =  dim.x + dim.w*col + dim.w - sliderradius;
 			var y  =  dim.y + dim.h/2;
@@ -66,26 +31,50 @@ define(['jquery','d3'], function($, d3){
 					  .style("stroke-width", "1px")
 		
 				parent.append("circle")
-					  .attr("cx", x1 + (x2-x1)/2)
+					  .attr("cx", function(d){return  sliderscale.invert(d.value);})
 					  .attr("cy", y)
 					  .attr("r", sliderradius)
-					  .style("stroke", "red")
+					  .style("stroke", "black")
 					  .style("stroke-width", "1px")
-					  .style("fill", "white")
+					  .style("fill", "#80b3ff")
 					  .call(d3.behavior.drag().on("drag", function(d){
 					  		var x = Math.min(Math.max(d3.event.x,x1),x2);
 					  		var value = sliderscale(x);
 					  		d3.select("text.option_" + d.id)
 					  			.text(parseInt(value));
-					  			
 					  		d3.select(this).attr("cx",x);
-					  		
+					  }).on("dragend", function(){
+					  		var d = d3.select(this).data();
+					  		var x = d3.select(this).attr("cx");
+					  		var value = sliderscale(x);
+					  		d[0].callback(value)
 					  }))
+			}
+			else if (d.type == "button"){
+				parent.append("circle")
+					  .attr("cx", x1 + (x2-x1)/2)
+					  .attr("cy", y)
+					  .attr("r", buttonradius)
+					  .style("fill", "#fff")
+					  .style("stroke", "black");
+					  
+				parent.append("circle")
+					  .attr("cx", x1 + (x2-x1)/2)
+					  .attr("cy", y)
+					  .attr("r", buttoninnerradius)
+					  .style("fill", function(d){return d.value?"#80b3ff":"white"})
+					  .style("stroke", "black")
+					  .call(d3.behavior.drag().on("dragstart", function(){
+					  		var d = d3.select(this).data();
+					  		d[0].value = !d[0].value;
+					  		d3.select(this).style("fill", d[0].value?"#80b3ff":"white");
+					  		d[0].callback(d[0].value)
+					  }));
 			}
 		},
 	
 		
-		create = function(hook, x0, y0, width, height){
+		create = function(hook, x0, y0, width, height, data){
 			
 			
 			data.forEach(function(item){
