@@ -248,6 +248,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		touchmiss = d3.behavior.drag()
 			  .on("dragstart", function(){
+			  		d3.event.sourceEvent.stopPropagation();
+	   				d3.event.sourceEvent.preventDefault();
 			  		missts = new Date().getTime();
 			  }).on("dragend", function(){
 			  		if (new Date().getTime()-missts > 2000){
