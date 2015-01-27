@@ -74,8 +74,14 @@ define(['jquery','d3'], function($, d3){
 		},
 	
 		
-		create = function(hook, x0, y0, width, height, data){
+		create = function(options){
 			
+			var hook = options.hook;
+			var x0  = options.x;
+			var y0 = options.y; 
+			var width = options.width;
+			var height = options.height;
+			var data = options.data; 
 			
 			data.forEach(function(item){
 				item.components.forEach(function(component){
@@ -165,8 +171,8 @@ define(['jquery','d3'], function($, d3){
 					 .style("fill", "#000")
 	  			  	 .style("font-size", (headerheight*0.8) + "px")
 	  			  	 .text(function(d){return d.name})
-			//RHS SUMMARY BOX
 			
+			//RHS SUMMARY BOX
 			group.append("rect")
 				  .attr("x", x0+colspacing + leftw + middlew)
 				  .attr("y", function(d,i){return y0+(i * groupheight)})

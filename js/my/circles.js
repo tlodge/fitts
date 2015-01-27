@@ -4,6 +4,20 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 	
 	var
 		
+		//experiment values
+		
+		start,
+		
+		stop,
+		
+		results = [],
+		
+		lasttargetpos,
+		touchpos,
+		targetpos,
+		
+		runstep 	  = 0,
+		
 		mingrid		  = {rows:8, cols:8},
 		
 		runlength 	  = 15,
@@ -22,6 +36,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		height 	= $(document).height(),
 		
+		targetradius  = width/20,
+		
 		dpi		= 113,
 		
 		enddata 	= [],
@@ -35,6 +51,10 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			
 			//mutliply by dpi
 			return (inches*dpi)
+		},
+		
+		pxtomm = function(px){
+			return px / (0.039370 * dpi);
 		},
 		
 		showgrid = true,	
@@ -51,17 +71,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				.attr("cy", d.y)
 				//.style("transform", function(d){return "translate(" + d.x + "px," + d.y + "px)";})
 		},
-		
-		
-		/*gcf = function(number){
-			var results = [];
-			for (var i=number-1; i >0; i--){
-				if (number%i == 0){
-					results.push([i, number/i]);
-				}
-			}	
-			return results;
-		},*/
+	
 		
 		shuffle = function(o){
 			for(var j,x,i=o.length;i;j=Math.floor(Math.random()*i),x=o[--i], o[i]=o[j],o[j]=x);
@@ -104,8 +114,14 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					var xrange = [col*colwidth, (col+1)*colwidth];
 					var yrange = [row*colheight,(row+1)*colheight];
 				
-					var randx = xrange[0] + Math.random()*colwidth;
-					var randy = yrange[0] + Math.random()*colheight;
+				
+					var randx = xrange[0] + colwidth/2; //+ Math.random()*colwidth;
+					var randy = yrange[0] + colheight/2;//+ Math.random()*colheight;
+					var attempts = 0;
+			
+					//do a check here for circles overlapping with target for drag exp!
+					
+			
 					grid.push({x:xrange[0], y:yrange[0], w:colwidth, h:colheight});
 					//positions.push({x:xrange[0] + Math.random()*xrange[1], y:yrange[0] + Math.random()*yrange[1]});
 					
@@ -118,8 +134,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					positions.push({ id:id++,
 									 x0:xrange[0],	
 									 y0: yrange[0], 
-									 x:Math.max(Math.min(randx, (xrange[0]+colwidth)-radius), xrange[0]+radius), 
-									 y:Math.max(Math.min(randy, (yrange[0]+colheight)-radius), yrange[0]+radius),
+									 x:randx,//Math.max(Math.min(randx, (xrange[0]+colwidth)-radius), xrange[0]+radius), 
+									 y:randy,//Math.max(Math.min(randy, (yrange[0]+colheight)-radius), yrange[0]+radius),
 									 r:radius});
 					
 					//positions.push([ [xrange[0], xrange[1]],[yrange[0], yrange[1]]]);
@@ -154,7 +170,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.attr("r", function(d){return d.r})
 					.style("fill", "white")
 					.style("stroke", "black")
-					.style("opacity", 0.5)		
+					.style("opacity", showgrid? 0.5:0)		
 			
 			mygrid.selectAll("mygrid")
 					.data(grid, function(d,i){return [d.x, d.y, d.width,d.height]})
@@ -167,7 +183,17 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.attr("height", function(d){return d.h})
 					.attr("fill", "none")
 					.style("stroke", "black")
-					.style("stroke-opacity", 0.5)
+					.style("stroke-opacity",showgrid? 0.5:0)
+			
+			d3.select("g.container")
+			   .append("rect")
+			   .attr("x",0)
+			   .attr("y",0)
+			   .attr("width", width)
+			   .attr("height", height)
+			   .attr("fill", "white")
+			   .attr("fill-opacity", 0.1)
+				.call(touchmiss);
 		},
 	
 		togglegrid = function(){
@@ -217,26 +243,30 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			  .on("drag", dragged)
 			  .on("dragend", dragend),
 		
+		
+		touchmiss = d3.behavior.drag()
+			  .on("dragstart", function(){
+			  	console.log("OH no I MISSED!");
+			  }),
+			  
 		dragtouch = d3.behavior.drag()
 			  .on("dragstart", function(){
-			  				//can use datum() / data() rather than __data__?
-			  				var id = d3.select(this).data()[0].id;
+			  				var tdata = d3.select(this).data()[0];
+			  				touchpos  = {x:d3.event.sourceEvent.clientX, y:d3.event.sourceEvent.clientY};
+			  				targetpos = {x:Math.round(tdata.x), y:Math.round(tdata.y), rpx: tdata.r, rmm:pxtomm(tdata.r)}
+			  				var id = tdata.id;
 			  				d3.select("circle.underlay"+id).style("fill", "green");
-			  				//d3.event.sourceEvent.stopPropagation();
 			  				startfirstcontact()
-				})
-				.on("drag", function(d){
-					//console.log(d);
 				}),
 	  	  		
 		svg  	= d3.select("#svg")
 					.attr("width",width)
-					.attr("height",height)
+					.attr("height",height*2)
 					.append("g")
 					.attr("class","container"),
 		
-		controlsvisible = false,
-					
+		
+		
 		randomx = function(){
 			return Math.random() * width;
 		},
@@ -250,28 +280,18 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			return rscale(rdx);
 		},
 		
-		togglecontrols = function(){
-		
-			if (controlsvisible){
-				svg.select("g.controls")
-					.transition()
-					.duration(500)
-					.attr("transform", "translate(" + ((width/2)-menuwidth) + ",0)")
-			}else{
-				svg.select("g.controls")
-					.transition()
-					.duration(500)
-					.attr("transform", "translate(0,0)")
-			}	
-			controlsvisible = !controlsvisible;
-		},
 		
 		reset = function(callback){
-			createdata();
-			togglecontrols();
+			runstep = 0;
 			
-			svg.selectAll("circle.target")
-				.remove();
+			$("body").css("overflow", "hidden");
+			window.location.hash="";
+			
+			createdata();
+			
+			
+			//svg.selectAll("circle.target")
+			//	.remove();
 			
 			svg.selectAll("circle.start")
 				.remove();
@@ -296,19 +316,20 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			var selectradius = padding/2;
 			var cpanel = svg.append("g")
 							.attr("class", "controls")
-							.attr("transform", "translate(" + ((width/2)-menuwidth) + ",0)")
+							
+							//.attr("transform", "translate(" + ((width/2)-menuwidth) + ",0)")
+						
 							 
 			cpanel.append("rect")
-				  .attr("x",  width/2)
-				  .attr("y",  0)
-				  .attr("width", width/2)
+				  .attr("x",  0)
+				  .attr("y",  height)
+				  .attr("width", width)
 				  .attr("height",height)
 				  .style("fill", "white")
 				  .style("fill-opacity", 1.0)
 				  .style("stroke", "black")
 				  .style("stroke-width", 1)				
-				  .call(d3.behavior.drag().on("dragstart", function(){togglecontrols();}))
-			
+				  
 			
 			var controlsdata = [
 						{
@@ -377,47 +398,37 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 								}},
 							]
 						},
+						{
+							name:"target",
+							components:[
+								{name:"x", id:"targetx", type:"slider", min:targetradius, max:width-targetradius, value:width/2, callback:function(value){
+									d3.select("circle.end")
+										.attr("cx", value);
+								}},
+								{name:"y", id:"targety", type:"slider", min:targetradius, max:height-targetradius, value: height-targetradius, callback:function(value){
+									console.log(value);
+									d3.select("circle.end")
+										.attr("cy", value);
+								}},
+							]
+						},
 				
 			];
-		
+	
 			
-			controls.create(cpanel, width/2, padding, (width/2-padding), height-padding, controlsdata);
-			
-			//add grid underlay buttons
-			/*cpanel.append("circle")
-				  .attr("cx",  width/2+padding)
-				  .attr("cy",  padding)
-				  .attr("r", selectradius)
-				  .style("stroke", "black")
-				  .style("fill", "white")
-				  .call(d3.behavior.drag().on("dragstart", function(){
-				  		togglegrid();
-				  }))
-				  
-			cpanel.append("text")
-				  .attr("dy", ".3em")
-	  			  .attr("x",  width/2+ 2* selectradius + padding)
-				  .attr("y",padding)	
-				  //.attr("text-anchor", "middle")
-	  			  .style("fill", "#000")
-	  			  .style("font-size", (selectradius*2 + "px"))
-	  			  .text("show grid")
-	  		
-	  		//add the dpi selection thing
-	  		cpanel.append("line")
-	  			  .attr("x1", width/2+padding)
-				  .attr("x2", width-padding)
-				  .attr("y1",rowspacing)
-				  .attr("y2",rowspacing)	
-	  			  .style("stroke", "#000")
-	  			  .style("stroke-width", "2px")
-			*/
-			
+			controls.create({
+					hook:cpanel,
+					x: 0,
+					y: height+padding,
+					width: width-padding*2,
+					height: height-padding, 
+					data: controlsdata
+			});
 			
 			cpanel.append("rect")
-				  .attr("x",  width/2)
-				  .attr("y",  height-buttonheight-padding-padding)
-				  .attr("width", width/2)
+				  .attr("x",  0)
+				  .attr("y",  (height*2)-buttonheight-padding-padding)
+				  .attr("width", width)
 				  .attr("height",buttonheight+padding+padding)
 				  .style("fill", "#30363c")
 				  .style("fill-opacity", 1.0)
@@ -427,8 +438,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			
 			cpanel.append("rect")
 				  .attr("rx", 5)
-				  .attr("x",  width/2 + padding)
-				  .attr("y",  height-buttonheight-padding)
+				  .attr("x",  padding)
+				  .attr("y",  height*2-buttonheight-padding)
 				  .attr("width", buttonwidth)
 				  .attr("height",buttonheight)
 				  .style("fill", "white")
@@ -442,8 +453,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				  .append("text")
 				  .attr("class", "buttonlabel")
 				  .attr("dy", ".3em")
-	  			  .attr("x", width/2 + padding + buttonwidth/2)
-				  .attr("y",height-buttonheight-padding + buttonheight/2)	
+	  			  .attr("x",  padding + buttonwidth/2)
+				  .attr("y",height*2-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
 	  			  .style("font-size", (buttonheight*0.5 + "px"))
@@ -453,8 +464,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 	  			  
 			cpanel.append("rect")
 				  .attr("rx", 5)
-				  .attr("x",  width/2 + padding + buttonwidth + padding)
-				  .attr("y",  height-buttonheight-padding)
+				  .attr("x",  padding + buttonwidth + padding)
+				  .attr("y",  height*2-buttonheight-padding)
 				  .attr("width", buttonwidth)
 				  .attr("height",buttonheight)
 				  .style("fill", "white")
@@ -467,8 +478,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				  .append("text")
 				  .attr("class", "buttonlabel")
 				  .attr("dy", ".3em")
-	  			  .attr("x", width/2 + padding + buttonwidth + padding + buttonwidth/2)
-				  .attr("y", height-buttonheight-padding + buttonheight/2)	
+	  			  .attr("x", padding + buttonwidth + padding + buttonwidth/2)
+				  .attr("y", height*2-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
 	  			  .style("font-size", (buttonheight*0.5 + "px"))
@@ -479,7 +490,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		startlastcontact  = function(){
 		  	
-			var radius = width/20;
+			
 			
 			var data = [{x:randomx(), y:randomy(), r:randomr()}];
 			
@@ -487,10 +498,15 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				var data = [positions.shift()]
 			}
 			
-			var targetdata = [{x: width/2, y:height-radius, r:radius}];
+			var targetdata = [{x: width/2, y:height-targetradius, r:targetradius}];
+			
+			//create a new random position if these intersect, can do better than attempts - should check if possible
+			//not to intersect!
+			
 			
 			var target = svg.selectAll("circle.end")
 							.data(targetdata)
+			
 			
 			target.enter()
 					.append("circle")
@@ -523,87 +539,42 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			
 		},
 		
-		/*startlastcontact  = function(){
-		
-			
-			var r0 = randomr();
-			
-			var startdata = enddata.length > 0 ? enddata: [
-						{x:Math.min(Math.max(r0,randomx()), width-r0),
-						 y:(Math.min(Math.max(r0,randomy()), height-r0)), 
-						 r:r0}];
-						 
-			var r1 = randomr();
-			
-		
-			enddata   	  = [
-						{x:Math.min(Math.max(r1,randomx()), width-r1),
-						 y:(Math.min(Math.max(r1,randomy()), height-r1)), 
-						 r:r1}];
-			
-			//create a new random position if these intersect, can do better than attempts - should check if possible
-			//not to intersect!
-			
-			var attempts = 0;
-			
-			while (intersect(enddata[0], startdata[0])){
-				if (attempts++ > 5)
-					break;
-				enddata = [
-						{x:Math.min(Math.max(r1,randomx()), width-r1),
-						 y:(Math.min(Math.max(r1,randomy()), height-r1)), 
-						 r:r1}];
-			}
-			
-			var c1 =  svg.selectAll("circle.start")
-						  .data(startdata, function(d){return [d.x,d.y,d.r]});
-			
-			var c2 =  svg.selectAll("circle.end")
-						  .data(enddata, function(d){return [d.x,d.y,d.r]});
-			
-			
-			
-			c1
-				.enter()
-				.insert("circle", ":first-child")
-				.attr("class", "start")
-				.attr("cx", function(d){return d.x})
-				.attr("cy", function(d){return d.y})
-				.attr("r", function(d){return d.r})
-				.style("stroke", "red")
-				.style("stroke-opacity", "1.0")
-				.style("fill", "red")
-				.style("fill-opacity", 0.3)
-				.call(drag)
-				
-			c2
-				.enter()
-				.insert("circle", ":first-child")
-				.attr("class", "end")
-				.attr("cx", function(d){return d.x})
-				.attr("cy", function(d){return d.y})
-				.attr("r", function(d){return d.r})
-				.style("stroke", "green")
-				.style("stroke-opacity", "1.0")
-				.style("fill", "green")
-				.style("fill-opacity", 0.3)
-				
-			c1.exit().remove();
-			c2.exit().remove();
-		},*/
 		
 		startfirstcontact = function(){
-		
+			
+			if (runstep==0){
+				
+			}
+			else if (runstep==1){
+				start=performance.now();
+				lasttargetpos = targetpos;
+				
+			}else{
+				
+				stop = performance.now();
+				
+				var pxdistance = Math.sqrt(((targetpos.x-lasttargetpos.x)*(targetpos.x-lasttargetpos.x)) + ((targetpos.y-lasttargetpos.y)*(targetpos.y-lasttargetpos.y)));
+				var mmdistance = pxtomm(pxdistance);
+				
+				results.push({
+					duration:(stop-start),
+					touchpos: touchpos,
+					targetpos: targetpos,
+					distancepx: pxdistance,
+					distancemm: mmdistance,	
+				})
+								
+				lasttargetpos = targetpos;
+				console.log(results);
+			}
+			
+			runstep+=1;
+			
 			var data = [{x:randomx(), y:randomy(), r:randomr()}];
 			
 			if (positions.length > 0){
 				var data = [positions.shift()]
 			}
-			//update
-			//svg.selectAll("circle")
-			//  .attr("cx", function(d){return d.x})
-			 // .attr("cy", function(d){return d.y})
-			 // .attr("r", function(d){return d.r})
 			
 			var circle = svg.selectAll("circle.target")
 							.data(data, function(d){return [d.x,d.y,d.r]})
@@ -619,11 +590,14 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				.style("stroke-opacity", "1.0")
 				.style("fill", "red")
 				.style("fill-opacity", 0.3)
-				.on("click", function(d){
-					startfirstcontact()
-				})
+				//.on("click", function(d){
+				//	console.log("clicked!!!");
+				
+				//	startfirstcontact()
+				//})
 				.call(dragtouch);
 	
+			start = performance.now();
 			circle
 				.exit()
 				.remove();		
@@ -633,11 +607,22 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		
 		init = function(){
+			
+					
 			rscale.domain(radiusrange);
 			createdata();
-			//startfirstcontact();	
-			startlastcontact();
+			startfirstcontact();	
+			//startlastcontact();
 			settings();
+			
+			$(window).bind('hashchange',function(){
+				if (window.location.hash == "#c"){
+					$("body").css("overflow", "auto");
+				}else{	  
+					$("body").css("overflow", "hidden");
+				}
+				
+			});
 		}
 	
 	return{
