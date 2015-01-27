@@ -290,8 +290,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			createdata();
 			
 			
-			//svg.selectAll("circle.target")
-			//	.remove();
+			svg.selectAll("circle.target")
+				.remove();
 			
 			svg.selectAll("circle.start")
 				.remove();
