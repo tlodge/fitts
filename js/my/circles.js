@@ -546,12 +546,13 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				
 			}
 			else if (runstep==1){
-				start=performance.now();
+				//start=performance.now();
+				start = new Date().getTime();
 				lasttargetpos = targetpos;
 				
 			}else{
 				
-				stop = performance.now();
+				stop = new Date().getTime();//performance.now();
 				
 				var pxdistance = Math.sqrt(((targetpos.x-lasttargetpos.x)*(targetpos.x-lasttargetpos.x)) + ((targetpos.y-lasttargetpos.y)*(targetpos.y-lasttargetpos.y)));
 				var mmdistance = pxtomm(pxdistance);
@@ -597,7 +598,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				//})
 				.call(dragtouch);
 	
-			start = performance.now();
+			start = new Date().getTime();//performance.now();
 			circle
 				.exit()
 				.remove();		
