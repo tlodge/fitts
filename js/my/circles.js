@@ -284,7 +284,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		reset = function(callback){
 			runstep = 0;
 			
-			$("body").css("overflow", "hidden");
+			$("body").css("overflow", "auto");
 			window.location.hash="";
 			
 			createdata();
@@ -620,10 +620,18 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				if (window.location.hash == "#c"){
 					$("body").css("overflow", "auto");
 				}else{	  
-					$("body").css("overflow", "hidden");
+					$("body").css("overflow", "auto");
 				}
 				
 			});
+			
+			$("#dashboard").doubletap(function(){
+				console.log("seen a double tap!!");
+				d3.select("g.container")
+					.attr("transform", "translate(0," + height + ")");
+			});
+				
+			
 		}
 	
 	return{
