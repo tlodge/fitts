@@ -260,6 +260,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			  
 		dragtouch = d3.behavior.drag()
 			  .on("dragstart", function(){
+			  				d3.event.sourceEvent.stopPropagation();
+	   						d3.event.sourceEvent.preventDefault();
 			  				var tdata = d3.select(this).data()[0];
 			  				touchpos  = {x:d3.event.sourceEvent.clientX, y:d3.event.sourceEvent.clientY};
 			  				targetpos = {x:Math.round(tdata.x), y:Math.round(tdata.y), rpx: tdata.r, rmm:pxtomm(tdata.r)}
