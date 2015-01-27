@@ -146,16 +146,6 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			
 			positions = shuffle(positions);
 			creategrid();
-			
-			d3.select("g.container")
-				.insert("rect", ":first-child")
-				.attr("class", "misspace")
-				.attr("x",0)
-				.attr("y",0)
-				.attr("width", width)
-				.attr("height", height)
-				.attr("fill", "white")
-				.call(touchmiss)
 		},
 	
 		removegrid = function(){
@@ -166,9 +156,9 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 			removegrid();
 			
-			var mygrid = svg.insert("g", ":first-child")
+			var mygrid = svg.insert("g", "g.controls")
 							.attr("class", "grid")
-							//.style("opacity", showgrid? 1:0);
+							.style("opacity", showgrid? 1:0);
 							
 			mygrid.selectAll("mycircles")
 					.data(positions)
@@ -180,7 +170,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.attr("r", function(d){return d.r})
 					.style("fill", "none")
 					.style("stroke", "black")
-					.style("opacity", showgrid? 0.5:0)		
+					.style("stroke-opacity",0.5)		
 			
 			mygrid.selectAll("mygrid")
 					.data(grid, function(d,i){return [d.x, d.y, d.width,d.height]})
@@ -193,7 +183,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.attr("height", function(d){return d.h})
 					.attr("fill", "none")
 					.style("stroke", "black")
-					.style("stroke-opacity",showgrid? 0.5:0)
+					.style("stroke-opacity",0.5)
 			
 		
 		},
@@ -641,7 +631,15 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				
 			});*/
 			
-			
+			d3.select("g.container")
+				.insert("rect", ":first-child")
+				.attr("class", "misspace")
+				.attr("x",0)
+				.attr("y",0)
+				.attr("width", width)
+				.attr("height", height)
+				.attr("fill", "white")
+				.call(touchmiss)
 			
 		}
 	
