@@ -185,7 +185,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.style("stroke", "black")
 					.style("stroke-opacity",showgrid? 0.5:0)
 			
-			d3.select("g.container")
+			/*d3.select("g.container")
 			   .append("rect")
 			   .attr("x",0)
 			   .attr("y",0)
@@ -193,7 +193,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			   .attr("height", height)
 			   .attr("fill", "white")
 			   .attr("fill-opacity", 0.1)
-				.call(touchmiss);
+				.call(touchmiss);*/
 		},
 	
 		togglegrid = function(){
