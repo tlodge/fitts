@@ -5,6 +5,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 	var
 		
 		//experiment values
+		missts,
 		
 		start,
 		
@@ -146,6 +147,15 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			positions = shuffle(positions);
 			creategrid();
 			
+			d3.select("g.container")
+				.insert("rect", ":first-child")
+				.attr("class", "misspace")
+				.attr("x",0)
+				.attr("y",0)
+				.attr("width", width)
+				.attr("height", height)
+				.attr("fill", "white")
+				.call(touchmiss)
 		},
 	
 		removegrid = function(){
@@ -158,7 +168,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			
 			var mygrid = svg.insert("g", ":first-child")
 							.attr("class", "grid")
-							.style("opacity", showgrid? 1:0);
+							//.style("opacity", showgrid? 1:0);
 							
 			mygrid.selectAll("mycircles")
 					.data(positions)
@@ -168,7 +178,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.attr("cx", function(d){return d.x})
 					.attr("cy", function(d){return d.y})
 					.attr("r", function(d){return d.r})
-					.style("fill", "white")
+					.style("fill", "none")
 					.style("stroke", "black")
 					.style("opacity", showgrid? 0.5:0)		
 			
@@ -185,15 +195,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.style("stroke", "black")
 					.style("stroke-opacity",showgrid? 0.5:0)
 			
-			/*d3.select("g.container")
-			   .append("rect")
-			   .attr("x",0)
-			   .attr("y",0)
-			   .attr("width", width)
-			   .attr("height", height)
-			   .attr("fill", "white")
-			   .attr("fill-opacity", 0.1)
-				.call(touchmiss);*/
+		
 		},
 	
 		togglegrid = function(){
@@ -246,7 +248,14 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		touchmiss = d3.behavior.drag()
 			  .on("dragstart", function(){
-			  	console.log("OH no I MISSED!");
+			  		missts = new Date().getTime();
+			  }).on("dragend", function(){
+			  		if (new Date().getTime()-missts > 2000){
+			  			d3.select("g.container")
+			  				.transition()
+			  				.duration(800)
+			  			  .attr("transform", "translate(0," + -height + ")")
+			  		}
 			  }),
 			  
 		dragtouch = d3.behavior.drag()
@@ -264,7 +273,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.attr("height",height*2)
 					.append("g")
 					.attr("class","container"),
-		
+					
 		
 		
 		randomx = function(){
@@ -282,10 +291,13 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		
 		reset = function(callback){
+		
+			d3.select("g.container")
+			  			  .attr("transform", "translate(0,0)")
 			runstep = 0;
 			
-			$("body").css("overflow", "auto");
-			window.location.hash="";
+			//$("body").css("overflow", "auto");
+			//window.location.hash="";
 			
 			createdata();
 			
@@ -616,21 +628,16 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			//startlastcontact();
 			settings();
 			
-			$(window).bind('hashchange',function(){
+			/*$(window).bind('hashchange',function(){
 				if (window.location.hash == "#c"){
 					$("body").css("overflow", "auto");
 				}else{	  
 					$("body").css("overflow", "auto");
 				}
 				
-			});
+			});*/
 			
-			$("#dashboard").doubletap(function(){
-				console.log("seen a double tap!!");
-				d3.select("g.container")
-					.attr("transform", "translate(0," + height + ")");
-			});
-				
+			
 			
 		}
 	
