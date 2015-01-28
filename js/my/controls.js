@@ -245,26 +245,7 @@ define(['jquery','d3'], function($, d3){
 	  			  	 .text(function(d){return d.value})
 	  			  	 
 					 	 
-			/*summaries.selectAll("text.summary")
-					 .data(function(d){return d.components})
-					 .enter()
-					 .append("text")
-					 //.attr("dy", ".3em")
-					 .attr("text-anchor", "middle")
-	  			     .attr("x",   (x0+colspacing + leftw + middlew) + rightw/2)
-				  	 .attr("y",function(d,i,j){
-				  	 	
-				  	 	var colheight = (groupheight/d.items) * 14/15;
-				  	 	var padding  = colheight/15;
-				  	 	
-				  	 	d.fontheight = Math.min(headerheight,colheight - (padding*2));
-				  	 	var starty 	 = y0+(j * groupheight)+d.fontheight/2;
-				  	 	var rowoffset = padding + ((colheight-(2*padding))*i);
-				  	 	return starty + d.fontheight/2+ rowoffset;
-				  	 })
-					 .style("fill", "#000")
-	  			  	 .style("font-size", function(d){ return d.fontheight + "px"})
-	  			  	 .text(function(d){return d.name + ":"+  d.value })  */
+		
 			
 		}
 	

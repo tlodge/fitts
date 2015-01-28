@@ -45,6 +45,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		menuwidth = 30,
 		
+	    controltimer,
+		
 		mmtopx = function(mm){
 			
 			//convert to inches
@@ -236,17 +238,35 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			  .on("dragend", dragend),
 		
 		
+		pulse = function(){
+			d3.select("rect.misspace")
+				.transition()
+				.duration(200)
+				.style("fill", "grey")
+				.each("end",function(){
+					
+					d3.select("rect.misspace")
+						.transition()
+						.duration(200)
+					   .style("fill", "white");
+				})
+		},
+		
 		touchmiss = d3.behavior.drag()
 			  .on("dragstart", function(){
 			  		d3.event.sourceEvent.stopPropagation();
 	   				d3.event.sourceEvent.preventDefault();
 			  		missts = new Date().getTime();
+			  		controltimer = window.setTimeout(pulse, 2300);
+			  		
 			  }).on("dragend", function(){
+			  		window.clearTimeout(controltimer);
 			  		if (new Date().getTime()-missts > 2000){
-			  			d3.select("g.container")
-			  				.transition()
-			  				.duration(800)
-			  			  .attr("transform", "translate(0," + -height + ")")
+			  			$("body").css("overflow", "auto");
+			  			//d3.select("g.container")
+			  				//.transition()
+			  				//.duration(800)
+			  			  //.attr("transform", "translate(0," + -height + ")")
 			  		}
 			  }),
 			  
@@ -285,9 +305,10 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		
 		reset = function(callback){
-		
-			d3.select("g.container")
-			  			  .attr("transform", "translate(0,0)")
+			$("html").scrollTop(0);
+			$("body").scrollTop(0);
+			$("body").css("overflow", "hidden");
+
 			runstep = 0;
 			
 			//$("body").css("overflow", "auto");
@@ -610,7 +631,19 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				.remove();		
 		},
 		
-		
+		fittsresults = function(){
+			
+			var result = d3.select("body")
+							.append("div")
+			  				.attr("id", "results")
+			  				.style("position", "absolute")
+			  				.style("top", (height*2) + "px")
+			  				.style("left", "0px");
+			
+			result.append("H1").text("your results").style("font-size", "40px");
+			
+			   
+		},
 		
 		
 		init = function(){
@@ -621,6 +654,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			startfirstcontact();	
 			//startlastcontact();
 			settings();
+			fittsresults();
 			
 			/*$(window).bind('hashchange',function(){
 				if (window.location.hash == "#c"){
