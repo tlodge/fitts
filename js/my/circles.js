@@ -258,6 +258,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			  		d3.event.sourceEvent.stopPropagation();
 	   				d3.event.sourceEvent.preventDefault();
 			  		missts = new Date().getTime();
+			  		window.clearTimeout(controltimer);
 			  		controltimer = window.setTimeout(pulse, 2300);
 			  		
 			  }).on("dragend", function(){
