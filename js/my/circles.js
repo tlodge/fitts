@@ -263,10 +263,10 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			  		window.clearTimeout(controltimer);
 			  		if (new Date().getTime()-missts > 2000){
 			  			$("body").css("overflow", "auto");
-			  			//d3.select("g.container")
-			  				//.transition()
-			  				//.duration(800)
-			  			  //.attr("transform", "translate(0," + -height + ")")
+			  			d3.select("g.container")
+			  				.transition()
+			  				.duration(800)
+			  			    .attr("transform", "translate(0," + -height + ")")
 			  		}
 			  }),
 			  
@@ -308,7 +308,10 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			$("html").scrollTop(0);
 			$("body").scrollTop(0);
 			$("body").css("overflow", "hidden");
-
+			d3.select("g.container")
+			  				.transition()
+			  				.duration(800)
+			  			    .attr("transform", "translate(0,0)")
 			runstep = 0;
 			
 			//$("body").css("overflow", "auto");
