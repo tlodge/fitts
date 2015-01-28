@@ -305,9 +305,11 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		
 		reset = function(callback){
-			$("html").scrollTop(0);
-			$("body").scrollTop(0);
+			//$("html").scrollTop(0);
+			//$("body").scrollTop(0);
+			
 			$("body").css("overflow", "hidden");
+			
 			d3.select("g.container")
 			  				.transition()
 			  				.duration(800)

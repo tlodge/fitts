@@ -13,12 +13,12 @@ require.config({
 require(['jquery','circles'], function($,circles) {
 	
 	//following makes disables scrolling on apple
-	/*
+	
 	$(document).bind(
 		'touchmove',
 			function(e){
 				e.preventDefault();
 			}
-	);*/
+	);
 	circles.init();
 });
