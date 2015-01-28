@@ -171,6 +171,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 					.attr("cy", function(d){return d.y})
 					.attr("r", function(d){return d.r})
 					.style("fill", "none")
+					.style("fill-opacity", 0.3)
 					.style("stroke", "black")
 					.style("stroke-opacity",0.5)		
 			
@@ -219,8 +220,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 	 	
 		dragend = function(){
 			var id = d3.select(this).data()[0].id;
-			d3.select("circle.underlay"+id).style("fill", "green");
-			  				
+			d3.select("circle.underlay"+id).style("fill", "green")
+			  								
 			var x0 = parseInt(d3.select(this).attr("cx"));
 			var y0 = parseInt(d3.select(this).attr("cy"));
 			var r0  = parseInt(d3.select(this).attr("r"));
@@ -309,7 +310,6 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			//$("body").scrollTop(0);
 			
 			$("body").css("overflow", "hidden");
-			
 			d3.select("g.container")
 			  				.transition()
 			  				.duration(800)
