@@ -518,8 +518,40 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 	  			  .style("font-size", (buttonheight*0.5 + "px"))
 	  			  .text("experiment two")	  
 				  .call(d3.behavior.drag().on("dragstart", function(){reset(startlastcontact);}))
+				  
+			cpanel.append("rect")
+				  .attr("rx", 5)
+				  .attr("x",  padding + 2*buttonwidth + 2*padding)
+				  .attr("y",  height*2-buttonheight-padding)
+				  .attr("width", buttonwidth)
+				  .attr("height",buttonheight)
+				  .style("fill", "white")
+				  .style("fill-opacity", 1.0)
+				  .style("stroke", "black")
+				  .style("stroke-width", 1)				
+				  .call(d3.behavior.drag().on("dragstart", showdata))
+		
+			cpanel
+				  .append("text")
+				  .attr("class", "buttonlabel")
+				  .attr("dy", ".3em")
+	  			  .attr("x", padding + 2*buttonwidth + 2*padding + buttonwidth/2)
+				  .attr("y", height*2-buttonheight-padding + buttonheight/2)	
+				  .attr("text-anchor", "middle")
+	  			  .style("fill", "#000")
+	  			  .style("font-size", (buttonheight*0.5 + "px"))
+	  			  .text("data")	  
+				  .call(d3.behavior.drag().on("dragstart", showdata))
 		},
 		
+		showdata = function(){
+			d3.select("g.container")
+			  				.transition()
+			  				.duration(800)
+			  			    .attr("transform", "translate(0," + -2*height + ")")
+			fittsresults();
+			
+		},
 		
 		startlastcontact  = function(){
 		  	
@@ -643,7 +675,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 							.append("div")
 			  				.attr("id", "results")
 			  				.style("position", "absolute")
-			  				.style("top", (height*2) + "px")
+			  				.style("top", 0 + "px")
 			  				.style("left", "0px");
 			
 			result.append("H1").text("your results").style("font-size", "40px");
@@ -660,7 +692,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			startfirstcontact();	
 			//startlastcontact();
 			settings();
-			fittsresults();
+			//fittsresults();
 			
 			/*$(window).bind('hashchange',function(){
 				if (window.location.hash == "#c"){
