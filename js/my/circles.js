@@ -1,4 +1,4 @@
-define(['jquery','d3', 'controls'], function($, d3, controls){
+define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 
 	"use strict";
 	
@@ -11,7 +11,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		
 		stop,
 		
-		results = [],
+		results = {results:ko.observableArray([])},
+		
 		
 		lasttargetpos,
 		touchpos,
@@ -265,10 +266,10 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			  		window.clearTimeout(controltimer);
 			  		if (new Date().getTime()-missts > 2000){
 			  			$("body").css("overflow", "auto");
-			  			d3.select("g.container")
+			  			d3.select("g.controls")
 			  				.transition()
 			  				.duration(800)
-			  			    .attr("transform", "translate(0," + -height + ")")
+			  			  	.attr("transform", "translate(0,0)")
 			  		}
 			  }),
 			  
@@ -286,7 +287,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 	  	  		
 		svg  	= d3.select("#svg")
 					.attr("width",width)
-					.attr("height",height*2)
+					.attr("height",height)
 					.append("g")
 					.attr("class","container"),
 					
@@ -310,16 +311,21 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			//$("html").scrollTop(0);
 			//$("body").scrollTop(0);
 			
-			$("body").css("overflow", "hidden");
-			d3.select("g.container")
-			  				.transition()
-			  				.duration(800)
-			  			    .attr("transform", "translate(0,0)")
+			//$("body").css("overflow", "hidden");
+			//d3.select("g.container")
+			//  				.transition()
+			//  				.duration(800)
+			// 			    .attr("transform", "translate(0,0)")
 			runstep = 0;
 			
 			//$("body").css("overflow", "auto");
 			//window.location.hash="";
 			
+			d3.select("g.controls")
+			  				.transition()
+			  				.duration(800)
+			  			  	.attr("transform", "translate(" + (width/2) + ",0)")
+			  			    
 			createdata();
 			
 			
@@ -345,12 +351,11 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			var rowspacing = width/15;
 			var padding = width/50;
 			var buttonheight = height/15;
-			var buttonwidth  = (width/2 - padding*3)/2
+			var buttonwidth  = (width/2 - padding*4)/3
 			var selectradius = padding/2;
 			var cpanel = svg.append("g")
 							.attr("class", "controls")
-							
-							//.attr("transform", "translate(" + ((width/2)-menuwidth) + ",0)")
+							.attr("transform", "translate(" + (width/2) + ",0)")
 						
 							 
 			cpanel.append("rect")
@@ -448,20 +453,35 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				
 			];
 	
-			
-			controls.create({
+	
+	
+			var controlsettings = {
 					hook:cpanel,
-					x: 0,
-					y: height+padding,
-					width: width-padding*2,
+					x: width/2,
+					y: 0+padding,
+					width: width/2-padding*2,
 					height: height-padding, 
 					data: controlsdata
-			});
+			}
 			
 			cpanel.append("rect")
-				  .attr("x",  0)
-				  .attr("y",  (height*2)-buttonheight-padding-padding)
+				  .attr("x", controlsettings.x)
+				  .attr("y", 0)
 				  .attr("width", width)
+				  .attr("height", height)
+				  .style("fill", "white")
+				  .style("opacity", 0.9)
+			
+			
+			controls.create(controlsettings);
+			
+			
+			
+				  
+			cpanel.append("rect")
+				  .attr("x",  controlsettings.x)
+				  .attr("y",  (height)-buttonheight-padding-padding)
+				  .attr("width", width/2)
 				  .attr("height",buttonheight+padding+padding)
 				  .style("fill", "#30363c")
 				  .style("fill-opacity", 1.0)
@@ -471,8 +491,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			
 			cpanel.append("rect")
 				  .attr("rx", 5)
-				  .attr("x",  padding)
-				  .attr("y",  height*2-buttonheight-padding)
+				  .attr("x",  controlsettings.x+ padding)
+				  .attr("y",  height-buttonheight-padding)
 				  .attr("width", buttonwidth)
 				  .attr("height",buttonheight)
 				  .style("fill", "white")
@@ -486,8 +506,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				  .append("text")
 				  .attr("class", "buttonlabel")
 				  .attr("dy", ".3em")
-	  			  .attr("x",  padding + buttonwidth/2)
-				  .attr("y",height*2-buttonheight-padding + buttonheight/2)	
+	  			  .attr("x",  controlsettings.x + padding + buttonwidth/2)
+				  .attr("y",height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
 	  			  .style("font-size", (buttonheight*0.5 + "px"))
@@ -497,8 +517,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 	  			  
 			cpanel.append("rect")
 				  .attr("rx", 5)
-				  .attr("x",  padding + buttonwidth + padding)
-				  .attr("y",  height*2-buttonheight-padding)
+				  .attr("x",  controlsettings.x+ padding + buttonwidth + padding)
+				  .attr("y",  height-buttonheight-padding)
 				  .attr("width", buttonwidth)
 				  .attr("height",buttonheight)
 				  .style("fill", "white")
@@ -511,8 +531,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				  .append("text")
 				  .attr("class", "buttonlabel")
 				  .attr("dy", ".3em")
-	  			  .attr("x", padding + buttonwidth + padding + buttonwidth/2)
-				  .attr("y", height*2-buttonheight-padding + buttonheight/2)	
+	  			  .attr("x", controlsettings.x+padding + buttonwidth + padding + buttonwidth/2)
+				  .attr("y", height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
 	  			  .style("font-size", (buttonheight*0.5 + "px"))
@@ -521,8 +541,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				  
 			cpanel.append("rect")
 				  .attr("rx", 5)
-				  .attr("x",  padding + 2*buttonwidth + 2*padding)
-				  .attr("y",  height*2-buttonheight-padding)
+				  .attr("x",  controlsettings.x+padding + 2*buttonwidth + 2*padding)
+				  .attr("y",  height-buttonheight-padding)
 				  .attr("width", buttonwidth)
 				  .attr("height",buttonheight)
 				  .style("fill", "white")
@@ -535,8 +555,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				  .append("text")
 				  .attr("class", "buttonlabel")
 				  .attr("dy", ".3em")
-	  			  .attr("x", padding + 2*buttonwidth + 2*padding + buttonwidth/2)
-				  .attr("y", height*2-buttonheight-padding + buttonheight/2)	
+	  			  .attr("x", controlsettings.x+padding + 2*buttonwidth + 2*padding + buttonwidth/2)
+				  .attr("y", height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
 	  			  .style("font-size", (buttonheight*0.5 + "px"))
@@ -545,12 +565,12 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		},
 		
 		showdata = function(){
-			d3.select("g.container")
+			console.log("seen show data");
+			
+			d3.select("div")
 			  				.transition()
 			  				.duration(800)
-			  			    .attr("transform", "translate(0," + -2*height + ")")
-			fittsresults();
-			
+			  			    .style("left", "0px");
 		},
 		
 		startlastcontact  = function(){
@@ -622,7 +642,8 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 				var pxdistance = Math.sqrt(((targetpos.x-lasttargetpos.x)*(targetpos.x-lasttargetpos.x)) + ((targetpos.y-lasttargetpos.y)*(targetpos.y-lasttargetpos.y)));
 				var mmdistance = pxtomm(pxdistance);
 				
-				results.push({
+				
+				results["results"].push({
 					duration:(stop-start),
 					touchpos: touchpos,
 					targetpos: targetpos,
@@ -670,16 +691,29 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 		},
 		
 		fittsresults = function(){
-			
-			var result = d3.select("body")
+			console.log("am in fitts results!");
+			var x = d3.select("body")
 							.append("div")
 			  				.attr("id", "results")
 			  				.style("position", "absolute")
-			  				.style("top", 0 + "px")
-			  				.style("left", "0px");
+			  				.style("top", "0px")
+			  				.style("left", width + "px")
+							.style("width", "100%")
+							.style("height", "100%")
+							.style("background", "#fff")
+							.append("div")
+							.attr("data-bind", "foreach:results")
+							.append("h1")
+							.attr("data-bind", "text:duration").style("font-size", "20px");
 			
-			result.append("H1").text("your results").style("font-size", "40px");
 			
+			console.log($("#results")[0]);
+
+			
+			
+			
+			
+			ko.applyBindings(results,$("#results")[0]);
 			   
 		},
 		
@@ -692,7 +726,7 @@ define(['jquery','d3', 'controls'], function($, d3, controls){
 			startfirstcontact();	
 			//startlastcontact();
 			settings();
-			//fittsresults();
+			fittsresults();
 			
 			/*$(window).bind('hashchange',function(){
 				if (window.location.hash == "#c"){

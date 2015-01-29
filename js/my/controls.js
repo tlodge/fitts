@@ -109,6 +109,8 @@ define(['jquery','d3'], function($, d3){
 				 .append("g")
 				 .attr("class", "group")
 			
+			
+				  
 			group.append("rect")
 				  .attr("x", x0 + colspacing)
 				  .attr("y", function(d,i){return y0+(i * groupheight)})
