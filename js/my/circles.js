@@ -645,10 +645,10 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				
 				results["results"].push({
 					duration:(stop-start),
-					touchpos: touchpos,
-					targetpos: targetpos,
-					distancepx: pxdistance,
-					distancemm: mmdistance,	
+					touchpos: touchpos.x + "," + touchpos.y,
+					targetpos: targetpos.x + "," + targetpos.y,
+					pxdistance: pxdistance,
+					mmdistance: mmdistance,	
 				})
 								
 				lasttargetpos = targetpos;
@@ -692,7 +692,8 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		
 		fittsresults = function(){
 			console.log("am in fitts results!");
-			var x = d3.select("body")
+			
+			var currentresults = d3.select("body")
 							.append("div")
 			  				.attr("id", "results")
 			  				.style("position", "absolute")
@@ -701,12 +702,56 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 							.style("width", "100%")
 							.style("height", "100%")
 							.style("background", "#fff")
-							.append("div")
+			
+			var table = currentresults.append("table")
+						  .attr("class", "table table-striped")
+				
+			var	headrow = table.append("thead")
+						  .append("tr")
+				
+				headrow.append("th")
+					   .text("duration")
+				
+				headrow.append("th")
+					   .text("target position")
+				
+				headrow.append("th")
+						.text("touch position")
+				
+				headrow.append("th")
+					   .text("distance (px)")
+				
+				headrow.append("th")
+						.text("distance (mm)")
+
+			 var resultset = table.append("tbody")
+						  	.attr("data-bind", "foreach:results")
+			
+			 var resultrow = resultset.append("tr")
+				resultrow.append("td")
+					 .attr("data-bind", "text:duration")
+			
+				resultrow.append("td")
+					 .attr("data-bind", "text:targetpos")
+					 
+				resultrow.append("td")
+					 .attr("data-bind", "text:touchpos")
+			
+				resultrow.append("td")
+					 .attr("data-bind", "text:pxdistance")
+			
+				resultrow.append("td")
+					 .attr("data-bind", "text:mmdistance")					  
+			
+			/*	
+						  
+			currentresults.append("div")
 							.attr("data-bind", "foreach:results")
-							.append("h1")
+			
+			currentresults.append("h1")
 							.attr("data-bind", "text:duration").style("font-size", "20px");
 			
-			
+			*/
 			console.log($("#results")[0]);
 
 			
