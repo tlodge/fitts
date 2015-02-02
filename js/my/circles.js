@@ -287,14 +287,10 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  				var x = d3.event.sourceEvent.clientX;
 			  				var y = d3.event.sourceEvent.clientY;
 			  				if (x == undefined && y == undefined){
-			  					console.log("ok am here!");
-			  					console.log(d3.event.sourceEvent.touches[0]);
-			  					
 			  					x = d3.event.sourceEvent.touches[0].clientX;
 			  					y = d3.event.sourceEvent.touches[0].clientY;
 			  				}
-			  				console.log("seen a drag strat!");
-			  				console.log(d3.event.sourceEvent);
+			  				
 			  				d3.event.sourceEvent.stopPropagation();
 	   						d3.event.sourceEvent.preventDefault();
 			  				var tdata = d3.select(this).data()[0];
@@ -544,7 +540,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				  .attr("y",height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
-	  			  .style("font-size", (buttonheight*0.5 + "px"))
+	  			  .style("font-size", (buttonheight*0.2 + "px"))
 	  			  .text("experiment one")
 	  			  .call(d3.behavior.drag().on("dragstart", function(){reset(startfirstcontact);}))
 	  			  
@@ -569,7 +565,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				  .attr("y", height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
-	  			  .style("font-size", (buttonheight*0.5 + "px"))
+	  			  .style("font-size", (buttonheight*0.2 + "px"))
 	  			  .text("experiment two")	  
 				  .call(d3.behavior.drag().on("dragstart", function(){reset(startlastcontact);}))
 				  
