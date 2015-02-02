@@ -283,6 +283,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  
 		dragtouch = d3.behavior.drag()
 			  .on("dragstart", function(){
+			  				console.log(d3.event.sourceEvent);
 			  				d3.event.sourceEvent.stopPropagation();
 	   						d3.event.sourceEvent.preventDefault();
 			  				var tdata = d3.select(this).data()[0];
@@ -733,11 +734,11 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  						   .style("top",  "0px")
 			  						   
 			  						   .style("left", (width-100)+ "px")
-									   
-									   .on("click", function(){	d3.select("div")
+									    .call(d3.behavior.drag().on("dragstart", function(){d3.select("div")
 			  													.transition()
 			  													.duration(800)
-			  			    									.style("left", width + "px");});
+			  			    									.style("left", width + "px");}))
+									  
 									   
 			var exp = currentresults.append("div")
 						  					.attr("data-bind", "foreach:experiments");
