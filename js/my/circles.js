@@ -731,6 +731,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  						   .style("width", "100px")
 			  						   .style("height", "40px")
 			  						   .style("top",  "0px")
+			  						   
 			  						   .style("left", (width-100)+ "px")
 									   
 									   .on("click", function(){	d3.select("div")
