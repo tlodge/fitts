@@ -11,18 +11,23 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		
 		stop,
 		
-		results = {results:ko.observableArray([])},
+		experiments = {experiments:ko.observableArray([])},
 		
+		experimentcount = 0,
+		
+		results = {results:[]},
 		
 		lasttargetpos,
+		
 		touchpos,
+		
 		targetpos,
 		
 		runstep 	  = 0,
 		
 		mingrid		  = {rows:8, cols:8},
 		
-		runlength 	  = 15,
+		runlength 	  = 10,
 		
 		step	  	  = 2,
 		
@@ -39,6 +44,8 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		height 	= $(document).height(),
 		
 		targetradius  = width/20,
+		
+		targetdata = {x: width/2, y:height-targetradius, r:targetradius},
 		
 		dpi		= 113,
 		
@@ -223,14 +230,15 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			var id = d3.select(this).data()[0].id;
 			d3.select("circle.underlay"+id).style("fill", "green")
 			  								
-			var x0 = parseInt(d3.select(this).attr("cx"));
-			var y0 = parseInt(d3.select(this).attr("cy"));
-			var r0  = parseInt(d3.select(this).attr("r"));
+			var x0 = Math.floor(d3.select(this).attr("cx"));
+			var y0 =  Math.floor(d3.select(this).attr("cy"));
+			var r0  =  Math.floor(d3.select(this).attr("r"));
 			
-			var x1 = parseInt(d3.select("circle.end").attr("cx"));
-			var y1 = parseInt(d3.select("circle.end").attr("cy"));
-			var r1  = parseInt(d3.select("circle.end").attr("r"));
+			var x1 =  Math.floor(d3.select("circle.end").attr("cx"));
+			var y1 =  Math.floor(d3.select("circle.end").attr("cy"));
+			var r1  =  Math.floor(d3.select("circle.end").attr("r"));
 		
+			
 			startlastcontact();
 		},
 			
@@ -306,20 +314,32 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			return rscale(rdx);
 		},
 		
+		end   = function(){
+			console.log("end of experiment!");
+			console.log(results);
+			
+			results.name 	  = "experiment " + (experimentcount++);
+			results.gridrows  = mingrid.rows;
+			results.gridcols  = mingrid.cols;
+			results.dpi  	  = dpi;
+			results.minmm 	  = radiusrange[0];
+			results.maxmm 	  = radiusrange[1];
+			results.step 	  = step;
+			results.runlength = runlength;
+			results.targetx   = targetdata.x;
+			results.targety   = targetdata.y;
+			results.targetr   = targetdata.r;	
+			experiments.experiments.push(results);
+			reset(function(){
+				console.log("end of experiment!!");
+			});
+		},
 		
 		reset = function(callback){
-			//$("html").scrollTop(0);
-			//$("body").scrollTop(0);
 			
-			//$("body").css("overflow", "hidden");
-			//d3.select("g.container")
-			//  				.transition()
-			//  				.duration(800)
-			// 			    .attr("transform", "translate(0,0)")
+			results['results'] = [];
+			
 			runstep = 0;
-			
-			//$("body").css("overflow", "auto");
-			//window.location.hash="";
 			
 			d3.select("g.controls")
 			  				.transition()
@@ -327,7 +347,6 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  			  	.attr("transform", "translate(" + (width/2) + ",0)")
 			  			    
 			createdata();
-			
 			
 			svg.selectAll("circle.target")
 				.remove();
@@ -432,7 +451,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 							name:"run length",
 							components:[
 								{name:"run length", id:"runlength", type:"slider", min:1, max:1000, value:20, callback:function(value){
-									runlength = value;
+									runlength = Math.floor(value);
 								}},
 							]
 						},
@@ -440,11 +459,13 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 							name:"target",
 							components:[
 								{name:"x", id:"targetx", type:"slider", min:targetradius, max:width-targetradius, value:width/2, callback:function(value){
+									targetdata.x = value;
 									d3.select("circle.end")
 										.attr("cx", value);
 								}},
 								{name:"y", id:"targety", type:"slider", min:targetradius, max:height-targetradius, value: height-targetradius, callback:function(value){
 									console.log(value);
+									targetdata.y = value;
 									d3.select("circle.end")
 										.attr("cy", value);
 								}},
@@ -565,8 +586,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		},
 		
 		showdata = function(){
-			console.log("seen show data");
-			
+		
 			d3.select("div")
 			  				.transition()
 			  				.duration(800)
@@ -583,14 +603,13 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				var data = [positions.shift()]
 			}
 			
-			var targetdata = [{x: width/2, y:height-targetradius, r:targetradius}];
 			
 			//create a new random position if these intersect, can do better than attempts - should check if possible
 			//not to intersect!
 			
 			
 			var target = svg.selectAll("circle.end")
-							.data(targetdata)
+							.data([targetdata])
 			
 			
 			target.enter()
@@ -628,10 +647,10 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		startfirstcontact = function(){
 			
 			if (runstep==0){
-				
+				console.log("runstep is zero!");
 			}
 			else if (runstep==1){
-				//start=performance.now();
+				
 				start = new Date().getTime();
 				lasttargetpos = targetpos;
 				
@@ -643,16 +662,22 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				var mmdistance = pxtomm(pxdistance);
 				
 				
-				results["results"].push({
+				results['results'].push({
 					duration:(stop-start),
 					touchpos: touchpos.x + "," + touchpos.y,
 					targetpos: targetpos.x + "," + targetpos.y,
-					pxdistance: pxdistance,
-					mmdistance: mmdistance,	
+					targetmm: Math.floor(targetpos.rmm),
+					targetpx: Math.floor(targetpos.rpx),
+					pxdistance: Math.floor(pxdistance),
+					mmdistance: Math.floor(mmdistance),	
 				})
 								
 				lasttargetpos = targetpos;
-				console.log(results);
+			}
+			
+			
+			if (runstep == runlength){
+				end();
 			}
 			
 			runstep+=1;
@@ -677,11 +702,6 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				.style("stroke-opacity", "1.0")
 				.style("fill", "red")
 				.style("fill-opacity", 0.3)
-				//.on("click", function(d){
-				//	console.log("clicked!!!");
-				
-				//	startfirstcontact()
-				//})
 				.call(dragtouch);
 	
 			start = new Date().getTime();//performance.now();
@@ -691,11 +711,11 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		},
 		
 		fittsresults = function(){
-			console.log("am in fitts results!");
-			
+		
 			var currentresults = d3.select("body")
 							.append("div")
 			  				.attr("id", "results")
+			  				.attr("class", "container")
 			  				.style("position", "absolute")
 			  				.style("top", "0px")
 			  				.style("left", width + "px")
@@ -703,62 +723,146 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 							.style("height", "100%")
 							.style("background", "#fff")
 			
-			var table = currentresults.append("table")
-						  .attr("class", "table table-striped")
-				
-			var	headrow = table.append("thead")
+			var button = currentresults.append("button")
+									   .attr("class", "btn btn-primary")
+									   .attr("type", "submit")
+									   .text("done")
+									   .style("position", "absolute")
+			  						   .style("width", "100px")
+			  						   .style("height", "40px")
+			  						   .style("top",  "0px")
+			  						   .style("left", (width-100)+ "px")
+									   
+									   .on("click", function(){	d3.select("div")
+			  													.transition()
+			  													.duration(800)
+			  			    									.style("left", width + "px");});
+									   
+			var exp = currentresults.append("div")
+						  					.attr("data-bind", "foreach:experiments");
+			
+			exp.append("h2")
+				.attr("data-bind", "text:name");
+					
+			var t1 = exp.append("table")
+						  		.attr("class", "table table-striped")
+			
+			var	t1headrow = t1.append("thead")
+						  	  .append("tr")		
+			
+			
+			t1headrow.append("th")
+					 .text("rows")
+			t1headrow.append("th")
+					 .text("cols")
+			t1headrow.append("th")
+					 .text("dpi")
+			t1headrow.append("th")
+					 .text("min mm")		 
+			t1headrow.append("th")
+					 .text("max mm")
+			t1headrow.append("th")
+					 .text("step")
+			t1headrow.append("th")
+					 .text("run length")
+			t1headrow.append("th")
+					 .text("target x")
+			t1headrow.append("th")
+					 .text("target y")	
+			t1headrow.append("th")
+					 .text("target radius")
+			
+			var t1param = t1.append("tbody")
+								  .append("tr");
+			
+			t1param.append("td")
+					.attr("data-bind", "text:gridrows")
+			
+			t1param.append("td")
+					.attr("data-bind", "text:gridcols")
+					
+			t1param.append("td")
+					.attr("data-bind", "text:dpi");			  		
+			
+			t1param.append("td")
+					.attr("data-bind", "text:minmm");	
+			
+			t1param.append("td")
+					.attr("data-bind", "text:maxmm");	
+					
+			t1param.append("td")
+					.attr("data-bind", "text:step");			
+			
+			t1param.append("td")
+					.attr("data-bind", "text:runlength");
+			
+			t1param.append("td")
+					.attr("data-bind", "text:targetx");
+			
+			t1param.append("td")
+					.attr("data-bind", "text:targety");
+			
+			t1param.append("td")
+					.attr("data-bind", "text:targetr");
+										  			
+										  			
+										  			
+										  			 		 	 						  			 		 	 	
+			var t2 = exp.append("table")
+						  		   .attr("class", "table table-striped")
+						  			
+							
+			var	t2headrow = t2.append("thead")
 						  .append("tr")
 				
-				headrow.append("th")
-					   .text("duration")
+				t2headrow.append("th")
+					   .text("duration (ms)")
 				
-				headrow.append("th")
+				t2headrow.append("th")
 					   .text("target position")
 				
-				headrow.append("th")
+				t2headrow.append("th")
+						.text("target radius (mm)")
+				
+				t2headrow.append("th")
+						.text("target radius (px)")
+						
+				t2headrow.append("th")
 						.text("touch position")
 				
-				headrow.append("th")
+				t2headrow.append("th")
 					   .text("distance (px)")
 				
-				headrow.append("th")
+				t2headrow.append("th")
 						.text("distance (mm)")
 
-			 var resultset = table.append("tbody")
+			 var t2resultset = t2.append("tbody")
 						  	.attr("data-bind", "foreach:results")
 			
-			 var resultrow = resultset.append("tr")
-				resultrow.append("td")
+			 var t2resultrow = t2resultset.append("tr")
+				t2resultrow.append("td")
 					 .attr("data-bind", "text:duration")
 			
-				resultrow.append("td")
+				t2resultrow.append("td")
 					 .attr("data-bind", "text:targetpos")
+				
+				t2resultrow.append("td")
+					 .attr("data-bind", "text:targetmm")
 					 
-				resultrow.append("td")
+				t2resultrow.append("td")
+					 .attr("data-bind", "text:targetpx")
+					 
+						 
+				t2resultrow.append("td")
 					 .attr("data-bind", "text:touchpos")
 			
-				resultrow.append("td")
+				t2resultrow.append("td")
 					 .attr("data-bind", "text:pxdistance")
 			
-				resultrow.append("td")
+				t2resultrow.append("td")
 					 .attr("data-bind", "text:mmdistance")					  
 			
-			/*	
-						  
-			currentresults.append("div")
-							.attr("data-bind", "foreach:results")
-			
-			currentresults.append("h1")
-							.attr("data-bind", "text:duration").style("font-size", "20px");
-			
-			*/
-			console.log($("#results")[0]);
-
-			
-			
-			
-			
-			ko.applyBindings(results,$("#results")[0]);
+			ko.applyBindings(experiments,$("#results")[0]);
 			   
 		},
 		
@@ -767,20 +871,11 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			
 					
 			rscale.domain(radiusrange);
-			createdata();
-			startfirstcontact();	
+			
 			//startlastcontact();
 			settings();
 			fittsresults();
-			
-			/*$(window).bind('hashchange',function(){
-				if (window.location.hash == "#c"){
-					$("body").css("overflow", "auto");
-				}else{	  
-					$("body").css("overflow", "auto");
-				}
-				
-			});*/
+		
 			
 			d3.select("g.container")
 				.insert("rect", ":first-child")
@@ -791,6 +886,8 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				.attr("height", height)
 				.attr("fill", "white")
 				.call(touchmiss)
+			
+			reset(startfirstcontact);	
 			
 		}
 	
