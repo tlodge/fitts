@@ -283,11 +283,13 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  
 		dragtouch = d3.behavior.drag()
 			  .on("dragstart", function(){
+			  				console.log("seen a drag strat!");
 			  				console.log(d3.event.sourceEvent);
 			  				d3.event.sourceEvent.stopPropagation();
 	   						d3.event.sourceEvent.preventDefault();
 			  				var tdata = d3.select(this).data()[0];
 			  				touchpos  = {x:d3.event.sourceEvent.clientX, y:d3.event.sourceEvent.clientY};
+			  				console.log(touchpos);
 			  				targetpos = {x:Math.round(tdata.x), y:Math.round(tdata.y), rpx: tdata.r, rmm:pxtomm(tdata.r)}
 			  				var id = tdata.id;
 			  				d3.select("circle.underlay"+id).style("fill", "green");
