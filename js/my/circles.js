@@ -459,7 +459,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 						{
 							name:"run length",
 							components:[
-								{name:"run length", id:"runlength", type:"slider", min:1, max:1000, value:20, callback:function(value){
+								{name:"run length", id:"runlength", type:"slider", min:1, max:50, value:runlength, callback:function(value){
 									runlength = Math.floor(value);
 								}},
 							]
@@ -540,7 +540,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				  .attr("y",height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
-	  			  .style("font-size", (buttonheight*0.2 + "px"))
+	  			  .style("font-size", (buttonheight*0.3 + "px"))
 	  			  .text("experiment one")
 	  			  .call(d3.behavior.drag().on("dragstart", function(){reset(startfirstcontact);}))
 	  			  
@@ -565,7 +565,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 				  .attr("y", height-buttonheight-padding + buttonheight/2)	
 				  .attr("text-anchor", "middle")
 	  			  .style("fill", "#000")
-	  			  .style("font-size", (buttonheight*0.2 + "px"))
+	  			  .style("font-size", (buttonheight*0.3 + "px"))
 	  			  .text("experiment two")	  
 				  .call(d3.behavior.drag().on("dragstart", function(){reset(startlastcontact);}))
 				  
