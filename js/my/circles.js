@@ -287,6 +287,9 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  				var x = d3.event.sourceEvent.clientX;
 			  				var y = d3.event.sourceEvent.clientY;
 			  				if (x == undefined && y == undefined){
+			  					console.log("ok am here!");
+			  					console.log(d3.event.sourceEvent.touches[0]);
+			  					
 			  					x = d3.event.sourceEvent.touches[0].clientX;
 			  					y = d3.event.sourceEvent.touches[0].clientY;
 			  				}
