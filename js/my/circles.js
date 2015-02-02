@@ -283,6 +283,13 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  
 		dragtouch = d3.behavior.drag()
 			  .on("dragstart", function(){
+			  
+			  				var x = d3.event.sourceEvent.clientX;
+			  				var y = d3.event.sourceEvent.clientY;
+			  				if (x == undefined && y == undefined){
+			  					x = d3.event.sourceEvent.touches[0].clientX;
+			  					y = d3.event.sourceEvent.touches[0].clientY;
+			  				}
 			  				console.log("seen a drag strat!");
 			  				console.log(d3.event.sourceEvent);
 			  				d3.event.sourceEvent.stopPropagation();
