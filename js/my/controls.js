@@ -1,4 +1,4 @@
-define(['jquery','d3'], function($, d3){
+define(['jquery','d3', 'knockout'], function($, d3, ko){
 
 	"use strict";
 	
@@ -7,6 +7,8 @@ define(['jquery','d3'], function($, d3){
 	
 		hook,
 	
+		
+		
 		createcomponent = function(parent, dim, col, row, d){
 	
 			var sliderradius = dim.h/6;
@@ -71,9 +73,33 @@ define(['jquery','d3'], function($, d3){
 					  		d[0].callback(d[0].value)
 					  }));
 			}
+			else if (d.type=="textinput"){
+				parent.append("foreignObject")
+    			 	.attr("x", dim.x )
+					.attr("y", dim.y)
+					.attr("width", dim.w)
+					.attr("height", dim.h)
+  				   .append("xhtml:div")
+  				   .append("input")
+  				   .attr("type", "text")
+  				   .attr("id", "experimentname")
+  				   .attr("data-bind", "value:experimentname")
+  				   .style("width", dim.w + "px")
+  				   .style("height", dim.h + "px");
+  				 
+  				var exp = {
+					experimentname : ko.observable()
+				};
+				 	 
+				ko.applyBindings(exp,$("#experimentname")[0]);
+			
+				exp.experimentname.subscribe(function(item){
+					console.log(item);
+					d.callback(item);
+				});
+    		}
 		},
 	
-		
 		create = function(options){
 			
 			var hook = options.hook;
@@ -246,8 +272,6 @@ define(['jquery','d3'], function($, d3){
 	  			  	 .style("font-weight", "bold")
 	  			  	 .text(function(d){return d.value})
 	  			  	 
-					 	 
-		
 			
 		}
 	

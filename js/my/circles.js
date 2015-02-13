@@ -11,9 +11,38 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		
 		stop,
 		
-		experiments = {experiments:ko.observableArray([])},
-		
-		experimentcount = 0,
+		experiments = {
+							currentexperiment: ko.observable(
+								name	: ko.observable(),
+								gridrows: ko.observable(),
+							    gridcols : ko.observable(),
+								dpi  	 : ko.observable(),
+								minmm 	 : ko.observable(),
+								maxmm 	 : ko.observable(),
+								step 	 : ko.observable(),
+								runlength : ko.observable(),
+								targetx  : ko.observable(),
+								targety   : ko.observable(),
+								targetr  : ko.observable()			
+							),
+							
+							experiments:ko.observableArray([]),	
+							
+							somethingtosee:ko.observable(false),
+							
+							setcurrent: function(experiment){
+								console.log("setting current experiment!");
+								console.log(experiment);
+								console.log(this);
+								
+								this.somethingtosee(true);
+							   	//set the attributes field by field...
+							    this.currentexperiment(experiment);
+							    console.log(this.currentexperiment());
+							}	
+						},
+			
+		experimentname = "",
 		
 		results = {results:[]},
 		
@@ -88,7 +117,6 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			for(var j,x,i=o.length;i;j=Math.floor(Math.random()*i),x=o[--i], o[i]=o[j],o[j]=x);
 				return o;
 		},
-		
 		
 		
 		createdata = function(){
@@ -327,7 +355,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			console.log("end of experiment!");
 			console.log(results);
 			
-			results.name 	  = "experiment " + (experimentcount++);
+			results.name 	  = experimentname;
 			results.gridrows  = mingrid.rows;
 			results.gridcols  = mingrid.cols;
 			results.dpi  	  = dpi;
@@ -338,6 +366,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			results.targetx   = targetdata.x;
 			results.targety   = targetdata.y;
 			results.targetr   = targetdata.r;	
+		
 			experiments.experiments.push(results);
 			reset(function(){
 				console.log("end of experiment!!");
@@ -480,6 +509,14 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 								}},
 							]
 						},
+						{
+							name:"name",
+							components:[
+								{name:"name", id:"experimentname", type:"textinput", label:"experiment name", callback:function(value){
+									experimentname = value;
+								}}
+							]
+						}
 				
 			];
 	
@@ -504,8 +541,6 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			
 			
 			controls.create(controlsettings);
-			
-			
 			
 				  
 			cpanel.append("rect")
@@ -595,8 +630,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		},
 		
 		showdata = function(){
-		
-			d3.select("div")
+			d3.select("div#results")
 			  				.transition()
 			  				.duration(800)
 			  			    .style("left", "0px");
@@ -604,8 +638,6 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		
 		startlastcontact  = function(){
 		  	
-			
-			
 			var data = [{x:randomx(), y:randomy(), r:randomr()}];
 			
 			if (positions.length > 0){
@@ -748,14 +780,18 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  			    									.style("left", width + "px");}))
 									  
 									   
-			var exp = currentresults.append("div")
-						  					.attr("data-bind", "foreach:experiments");
+			var exp = currentresults.append("div").attr("data-bind", "foreach:experiments");
 			
-			exp.append("h2")
-				.attr("data-bind", "text:name");
-					
-			var t1 = exp.append("table")
-						  		.attr("class", "table table-striped")
+			exp.append("a")
+				.attr("href", "#")
+				.attr("data-bind", "text:name, click:function(d){$parent.setcurrent($data)}");
+			
+			var res = currentresults.append("div")
+									.attr("class", "someresults") 		
+									.attr("data-bind", "visible:somethingtosee")
+									
+			var t1 = res.append("table")
+						.attr("class", "table table-striped")
 			
 			var	t1headrow = t1.append("thead")
 						  	  .append("tr")		
@@ -786,39 +822,39 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 								  .append("tr");
 			
 			t1param.append("td")
-					.attr("data-bind", "text:gridrows")
+					.attr("data-bind", "text:currentexperiment.gridrows")
 			
 			t1param.append("td")
-					.attr("data-bind", "text:gridcols")
+					.attr("data-bind", "text:currentexperiment.gridcols")
 					
 			t1param.append("td")
-					.attr("data-bind", "text:dpi");			  		
+					.attr("data-bind", "text:currentexperiment.dpi");			  		
 			
 			t1param.append("td")
-					.attr("data-bind", "text:minmm");	
+					.attr("data-bind", "text:currentexperiment.minmm");	
 			
 			t1param.append("td")
-					.attr("data-bind", "text:maxmm");	
+					.attr("data-bind", "text:currentexperiment.maxmm");	
 					
 			t1param.append("td")
-					.attr("data-bind", "text:step");			
+					.attr("data-bind", "text:currentexperiment.step");			
 			
 			t1param.append("td")
-					.attr("data-bind", "text:runlength");
+					.attr("data-bind", "text:currentexperiment.runlength");
 			
 			t1param.append("td")
-					.attr("data-bind", "text:targetx");
+					.attr("data-bind", "text:currentexperiment.targetx");
 			
 			t1param.append("td")
-					.attr("data-bind", "text:targety");
+					.attr("data-bind", "text:currentexperiment.targety");
 			
 			t1param.append("td")
-					.attr("data-bind", "text:targetr");
+					.attr("data-bind", "text:currentexperiment.targetr");
 										  			
 										  			
 										  			
 										  			 		 	 						  			 		 	 	
-			var t2 = exp.append("table")
+			var t2 = res.append("table")
 						  		   .attr("class", "table table-striped")
 						  			
 							
@@ -847,7 +883,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 						.text("distance (mm)")
 
 			 var t2resultset = t2.append("tbody")
-						  	.attr("data-bind", "foreach:results")
+						  	.attr("data-bind", "foreach:currentexperiment.results")
 			
 			 var t2resultrow = t2resultset.append("tr")
 				t2resultrow.append("td")
