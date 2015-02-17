@@ -5,6 +5,7 @@ require.config({
         "jquery": "../jquery/jquery-2.1.0.min",
 		"d3": "../d3/d3",
 		"knockout":"../knockout/knockout-3.1.0",
+		"moment": '../moment/moment.min',
     },
     
     "shim": {

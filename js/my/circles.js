@@ -1,4 +1,4 @@
-define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
+define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, controls, ko, moment){
 
 	"use strict";
 	
@@ -12,33 +12,41 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		stop,
 		
 		experiments = {
-							currentexperiment: ko.observable(
-								name	: ko.observable(),
-								gridrows: ko.observable(),
-							    gridcols : ko.observable(),
-								dpi  	 : ko.observable(),
-								minmm 	 : ko.observable(),
-								maxmm 	 : ko.observable(),
-								step 	 : ko.observable(),
-								runlength : ko.observable(),
-								targetx  : ko.observable(),
-								targety   : ko.observable(),
-								targetr  : ko.observable()			
-							),
+							currentexperiment: {
+										name		: ko.observable(),
+										gridrows	: ko.observable(),
+										gridcols 	: ko.observable(),
+										dpi  	 	: ko.observable(),
+										minmm 	 	: ko.observable(),
+										maxmm 	 	: ko.observable(),
+										step 	 	: ko.observable(),
+										runlength 	: ko.observable(),
+										targetx  	: ko.observable(),
+										targety   	: ko.observable(),
+										targetr  	: ko.observable(),	
+										results  	: ko.observableArray([])	
+							},
 							
 							experiments:ko.observableArray([]),	
 							
 							somethingtosee:ko.observable(false),
 							
 							setcurrent: function(experiment){
-								console.log("setting current experiment!");
-								console.log(experiment);
-								console.log(this);
-								
 								this.somethingtosee(true);
 							   	//set the attributes field by field...
-							    this.currentexperiment(experiment);
-							    console.log(this.currentexperiment());
+							    
+							    this.currentexperiment.name(experiment.name);
+								this.currentexperiment.gridrows(experiment.gridrows);
+								this.currentexperiment.gridcols(experiment.gridcols);
+								this.currentexperiment.dpi(experiment.dpi);
+								this.currentexperiment.minmm(experiment.minmm);
+								this.currentexperiment.maxmm(experiment.maxmm);
+								this.currentexperiment.step(experiment.step);
+								this.currentexperiment.runlength(experiment.runlength);
+								this.currentexperiment.targetx(experiment.targetx);
+								this.currentexperiment.targety(experiment.targety);
+								this.currentexperiment.targetr(experiment.targetr);
+							  	this.currentexperiment.results(experiment.results);
 							}	
 						},
 			
@@ -352,10 +360,7 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 		},
 		
 		end   = function(){
-			console.log("end of experiment!");
-			console.log(results);
-			
-			results.name 	  = experimentname;
+			results.name 	  = experimentname + moment().format("DD_MM_YY_HH:mm:ss");
 			results.gridrows  = mingrid.rows;
 			results.gridcols  = mingrid.cols;
 			results.dpi  	  = dpi;
@@ -366,8 +371,9 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			results.targetx   = targetdata.x;
 			results.targety   = targetdata.y;
 			results.targetr   = targetdata.r;	
-		
-			experiments.experiments.push(results);
+			var rcopy = $.extend({},results);
+			console.log(rcopy);
+			experiments.experiments.push(rcopy);
 			reset(function(){
 				console.log("end of experiment!!");
 			});
@@ -774,17 +780,23 @@ define(['jquery','d3', 'controls', 'knockout'], function($, d3, controls, ko){
 			  						   .style("top",  "0px")
 			  						   
 			  						   .style("left", (width-100)+ "px")
-									    .call(d3.behavior.drag().on("dragstart", function(){d3.select("div")
+									   .call(d3.behavior.drag().on("dragstart", function(){d3.select("div#results")
 			  													.transition()
 			  													.duration(800)
 			  			    									.style("left", width + "px");}))
 									  
-									   
-			var exp = currentresults.append("div").attr("data-bind", "foreach:experiments");
 			
-			exp.append("a")
+			
+			var exp = currentresults.append("ul")
+									.attr("class", "nav nav-pills")
+									.attr("data-bind", "foreach:experiments");
+			
+			exp.append("li")
+				.append("a")
 				.attr("href", "#")
 				.attr("data-bind", "text:name, click:function(d){$parent.setcurrent($data)}");
+			
+									   	
 			
 			var res = currentresults.append("div")
 									.attr("class", "someresults") 		
