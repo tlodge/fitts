@@ -11,7 +11,7 @@ define(['jquery','d3', 'knockout'], function($, d3, ko){
 		
 		createcomponent = function(parent, dim, col, row, d){
 	
-			var sliderradius = dim.h/6;
+			var sliderradius = dim.h/4;
 			var buttonradius = dim.h/4;
 			var buttoninnerradius = dim.h/6;
 			
