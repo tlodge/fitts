@@ -3,8 +3,6 @@ require.config({
 
     paths: {
         "jquery": "../jquery/jquery-2.1.0.min",
-		"d3": "../d3/d3",
-		"knockout":"../knockout/knockout-3.1.0",
 		"moment": '../moment/moment.min',
 		"react": '../react/react',
 		"showdown": '../react/showdown.min',
@@ -14,9 +12,7 @@ require.config({
     }
 });
 
-require(['jquery','circles', 'results'], function($,circles, results) {
-	
-	//add some prototype methods to storage to support saving,loading objects
+require(['jquery', 'results'], function($, results) {
 	
 	Storage.prototype.setObject = function(key,value){
 		this.setItem(key, JSON.stringify(value));
@@ -34,5 +30,5 @@ require(['jquery','circles', 'results'], function($,circles, results) {
 				e.preventDefault();
 			}
 	);
-	circles.init();
+	results.init();
 });

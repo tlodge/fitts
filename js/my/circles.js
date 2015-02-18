@@ -361,6 +361,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 		
 		end   = function(){
 			results.name 	  = experimentname + moment().format("DD_MM_YY_HH:mm:ss");
+			results.type	  = "first_contact";
 			results.gridrows  = mingrid.rows;
 			results.gridcols  = mingrid.cols;
 			results.dpi  	  = dpi;
@@ -374,6 +375,11 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			var rcopy = $.extend({},results);
 			console.log(rcopy);
 			experiments.experiments.push(rcopy);
+			
+			var stored = window.localStorage.getObject("experiment") || [];
+			stored.push(rcopy);
+			window.localStorage.setObject("experiment", stored)
+			
 			reset(function(){
 				console.log("end of experiment!!");
 			});
