@@ -89,95 +89,44 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		}
 	});
 	
-	
-	var ParametersHeader = React.createClass({displayName: "ParametersHeader",
-		render: function(){
-			if (this.props.type == "first_contact"){
-				return(
-					React.createElement("tr", null, 
-						React.createElement("th", null, "type"), 
-						React.createElement("th", null, "rows"), 
-						React.createElement("th", null, "cols"), 
-						React.createElement("th", null, "dpi"), 
-						React.createElement("th", null, "min mm"), 
-						React.createElement("th", null, "max mm"), 
-						React.createElement("th", null, "step"), 
-						React.createElement("th", null, "run length")
-					)
-				)
-			}else{
-				return(
-					React.createElement("tr", null, 
-						React.createElement("th", null, "type"), 
-						React.createElement("th", null, "rows"), 
-						React.createElement("th", null, "cols"), 
-						React.createElement("th", null, "dpi"), 
-						React.createElement("th", null, "min mm"), 
-						React.createElement("th", null, "max mm"), 
-						React.createElement("th", null, "step"), 
-						React.createElement("th", null, "run length"), 
-						React.createElement("th", null, "target x"), 
-						React.createElement("th", null, "target y"), 
-						React.createElement("th", null, "target radius")
-					)
-				)
-			}
-			
-		}
-	});
-	
-	
-	var ParametersBody = React.createClass({displayName: "ParametersBody",
-		render: function(){
-			
-			if (this.props.experiment.type == "first_contact"){
-				return (
-					React.createElement("tr", null, 
-						React.createElement("th", null, this.props.experiment.type), 
-						React.createElement("th", null, this.props.experiment.gridrows), 
-						React.createElement("th", null, this.props.experiment.gridcols), 
-						React.createElement("th", null, this.props.experiment.dpi), 
-						React.createElement("th", null, this.props.experiment.minmm), 
-						React.createElement("th", null, this.props.experiment.maxmm), 
-						React.createElement("th", null, this.props.experiment.step), 
-						React.createElement("th", null, this.props.experiment.runlength)
-					)
-				)
-			}else{
-				return(
-					React.createElement("tr", null, 
-						React.createElement("th", null, this.props.experiment.type), 
-						React.createElement("th", null, this.props.experiment.gridrows), 
-						React.createElement("th", null, this.props.experiment.gridcols), 
-						React.createElement("th", null, this.props.experiment.dpi), 
-						React.createElement("th", null, this.props.experiment.minmm), 
-						React.createElement("th", null, this.props.experiment.maxmm), 
-						React.createElement("th", null, this.props.experiment.step), 
-						React.createElement("th", null, this.props.experiment.runlength), 
-						React.createElement("th", null, this.props.experiment.targetx), 
-						React.createElement("th", null, this.props.experiment.targety), 
-						React.createElement("th", null, this.props.experiment.targetr)
-					)
-				)
-			}
-		}
-	});
-	
 	var ExperimentParameters = React.createClass({displayName: "ExperimentParameters",
 		render: function(){
 			
 			if (this.props.experiment.name == undefined)
 				return (React.createElement("div", null))
 			
-		
 			
 			return (
 				React.createElement("table", {className: "table table-striped"}, 
 					React.createElement("thead", null, 
-						React.createElement(ParametersHeader, {type: this.props.experiment.type})
+						React.createElement("tr", null, 
+							React.createElement("th", null, "type"), 
+							React.createElement("th", null, "rows"), 
+							React.createElement("th", null, "cols"), 
+							React.createElement("th", null, "dpi"), 
+							React.createElement("th", null, "min mm"), 
+							React.createElement("th", null, "max mm"), 
+							React.createElement("th", null, "step"), 
+							React.createElement("th", null, "run length"), 
+							React.createElement("th", null, "target x"), 
+							React.createElement("th", null, "target y"), 
+							React.createElement("th", null, "target radius")
+						)
 					), 				
 					React.createElement("tbody", null, 
-						React.createElement(ParametersBody, {experiment: this.props.experiment})
+						React.createElement("tr", null, 	
+							React.createElement("th", null, this.props.experiment.type), 
+							React.createElement("th", null, this.props.experiment.gridrows), 
+							React.createElement("th", null, this.props.experiment.gridcols), 
+							React.createElement("th", null, this.props.experiment.dpi), 
+							React.createElement("th", null, this.props.experiment.minmm), 
+							React.createElement("th", null, this.props.experiment.maxmm), 
+							React.createElement("th", null, this.props.experiment.step), 
+							React.createElement("th", null, this.props.experiment.runlength), 
+							React.createElement("th", null, this.props.experiment.targetx), 
+							React.createElement("th", null, this.props.experiment.targety), 
+							React.createElement("th", null, this.props.experiment.targetr)
+						)
 					)
 				)
 				

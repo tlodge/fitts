@@ -89,43 +89,95 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		}
 	});
 	
+	
+	var ParametersHeader = React.createClass({
+		render: function(){
+			if (this.props.type == "first_contact"){
+				return(
+					<tr>
+						<th>type</th>
+						<th>rows</th>
+						<th>cols</th>
+						<th>dpi</th>
+						<th>min mm</th>
+						<th>max mm</th>
+						<th>step</th>
+						<th>run length</th>
+					</tr>
+				)
+			}else{
+				return(
+					<tr>
+						<th>type</th>
+						<th>rows</th>
+						<th>cols</th>
+						<th>dpi</th>
+						<th>min mm</th>
+						<th>max mm</th>
+						<th>step</th>
+						<th>run length</th>
+						<th>target x</th>
+						<th>target y</th>
+						<th>target radius</th>
+					</tr>
+				)
+			}
+			
+		}
+	});
+	
+	
+	var ParametersBody = React.createClass({
+		render: function(){
+			
+			if (this.props.experiment.type == "first_contact"){
+				return (
+					<tr>
+						<th>{this.props.experiment.type}</th>
+						<th>{this.props.experiment.gridrows}</th>
+						<th>{this.props.experiment.gridcols}</th>
+						<th>{this.props.experiment.dpi}</th>
+						<th>{this.props.experiment.minmm}</th>
+						<th>{this.props.experiment.maxmm}</th>
+						<th>{this.props.experiment.step}</th>
+						<th>{this.props.experiment.runlength}</th>
+					</tr>
+				)
+			}else{
+				return(
+					<tr>
+						<th>{this.props.experiment.type}</th>
+						<th>{this.props.experiment.gridrows}</th>
+						<th>{this.props.experiment.gridcols}</th>
+						<th>{this.props.experiment.dpi}</th>
+						<th>{this.props.experiment.minmm}</th>
+						<th>{this.props.experiment.maxmm}</th>
+						<th>{this.props.experiment.step}</th>
+						<th>{this.props.experiment.runlength}</th>
+						<th>{this.props.experiment.targetx}</th>
+						<th>{this.props.experiment.targety}</th>
+						<th>{this.props.experiment.targetr}</th>
+					</tr>
+				)
+			}
+		}
+	});
+	
 	var ExperimentParameters = React.createClass({
 		render: function(){
 			
 			if (this.props.experiment.name == undefined)
 				return (<div></div>)
 			
+		
+			
 			return (
 				<table className="table table-striped">
 					<thead>
-						<tr>
-							<th>type</th>
-							<th>rows</th>
-							<th>cols</th>
-							<th>dpi</th>
-							<th>min mm</th>
-							<th>max mm</th>
-							<th>step</th>
-							<th>run length</th>
-							<th>target x</th>
-							<th>target y</th>
-							<th>target radius</th>
-						</tr>
+						<ParametersHeader type={this.props.experiment.type} />
 					</thead>				
 					<tbody>
-						<tr>	
-							<th>{this.props.experiment.type}</th>
-							<th>{this.props.experiment.gridrows}</th>
-							<th>{this.props.experiment.gridcols}</th>
-							<th>{this.props.experiment.dpi}</th>
-							<th>{this.props.experiment.minmm}</th>
-							<th>{this.props.experiment.maxmm}</th>
-							<th>{this.props.experiment.step}</th>
-							<th>{this.props.experiment.runlength}</th>
-							<th>{this.props.experiment.targetx}</th>
-							<th>{this.props.experiment.targety}</th>
-							<th>{this.props.experiment.targetr}</th>
-						</tr>
+						<ParametersBody experiment={this.props.experiment} />
 					</tbody>
 				</table>
 				

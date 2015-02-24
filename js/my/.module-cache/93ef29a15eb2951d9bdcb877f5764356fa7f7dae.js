@@ -92,7 +92,7 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 	
 	var ParametersHeader = React.createClass({displayName: "ParametersHeader",
 		render: function(){
-			if (this.props.type == "first_contact"){
+			if (this.props.type == "last_contact"){
 				return(
 					React.createElement("tr", null, 
 						React.createElement("th", null, "type"), 
@@ -129,8 +129,9 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 	
 	var ParametersBody = React.createClass({displayName: "ParametersBody",
 		render: function(){
+			console.log(this.props.experiment.type);
 			
-			if (this.props.experiment.type == "first_contact"){
+			if (this.props.experiment.type == "last_contact"){
 				return (
 					React.createElement("tr", null, 
 						React.createElement("th", null, this.props.experiment.type), 
@@ -144,8 +145,7 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 					)
 				)
 			}else{
-				return(
-					React.createElement("tr", null, 
+				React.createElement("tr", null, 
 						React.createElement("th", null, this.props.experiment.type), 
 						React.createElement("th", null, this.props.experiment.gridrows), 
 						React.createElement("th", null, this.props.experiment.gridcols), 
@@ -158,7 +158,6 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 						React.createElement("th", null, this.props.experiment.targety), 
 						React.createElement("th", null, this.props.experiment.targetr)
 					)
-				)
 			}
 		}
 	});

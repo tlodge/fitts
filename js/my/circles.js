@@ -11,44 +11,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 		
 		stop,
 		
-		experiments = {
-							currentexperiment: {
-										name		: ko.observable(),
-										gridrows	: ko.observable(),
-										gridcols 	: ko.observable(),
-										dpi  	 	: ko.observable(),
-										minmm 	 	: ko.observable(),
-										maxmm 	 	: ko.observable(),
-										step 	 	: ko.observable(),
-										runlength 	: ko.observable(),
-										targetx  	: ko.observable(),
-										targety   	: ko.observable(),
-										targetr  	: ko.observable(),	
-										results  	: ko.observableArray([])	
-							},
-							
-							experiments:ko.observableArray([]),	
-							
-							somethingtosee:ko.observable(false),
-							
-							setcurrent: function(experiment){
-								this.somethingtosee(true);
-							   	//set the attributes field by field...
-							    
-							    this.currentexperiment.name(experiment.name);
-								this.currentexperiment.gridrows(experiment.gridrows);
-								this.currentexperiment.gridcols(experiment.gridcols);
-								this.currentexperiment.dpi(experiment.dpi);
-								this.currentexperiment.minmm(experiment.minmm);
-								this.currentexperiment.maxmm(experiment.maxmm);
-								this.currentexperiment.step(experiment.step);
-								this.currentexperiment.runlength(experiment.runlength);
-								this.currentexperiment.targetx(experiment.targetx);
-								this.currentexperiment.targety(experiment.targety);
-								this.currentexperiment.targetr(experiment.targetr);
-							  	this.currentexperiment.results(experiment.results);
-							}	
-						},
+		experiments = [],
 			
 		experimentname = "",
 		
@@ -59,6 +22,8 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 		touchpos,
 		
 		targetpos,
+		
+		endpos, //record the end drag point for the last contact experiment
 		
 		runstep 	  = 0,
 		
@@ -88,9 +53,13 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 		
 		enddata 	= [],
 		
+		currentdata = [],
+		
 		menuwidth = 30,
 		
 	    controltimer,
+		
+		errorcount = 0,
 		
 		mmtopx = function(mm){
 			
@@ -117,6 +86,15 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			d3.select(this)
 				.attr("cx", d.x)
 				.attr("cy", d.y)
+				
+			if (overlap(d.x,d.y, currentdata.r)){
+				console.log("overlap!!");
+				d3.select("circle.end")
+					.style("fill", "blue");
+			}else{
+				d3.select("circle.end")
+					.style("fill", "red");
+			}
 				//.style("transform", function(d){return "translate(" + d.x + "px," + d.y + "px)";})
 		},
 	
@@ -261,10 +239,36 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			return true;
 	 	},
 	 	
+	 	overlap = function(x,y,r){
+	 		var pxdistance = Math.sqrt(((x-targetdata.x)*(x-targetdata.x)) + ((y-targetdata.y)*(y-targetdata.y)));
+			
+			if (pxdistance > (r+targetdata.r)){
+	 			return false;
+	 		}
+	 		return true;
+	 		
+	 	},
 	 	
 		dragend = function(){
-			var id = d3.select(this).data()[0].id;
-			d3.select("circle.underlay"+id).style("fill", "green")
+		
+			var x = d3.event.sourceEvent.clientX;
+			var y = d3.event.sourceEvent.clientY;
+			  		
+			if (x == undefined && y == undefined){
+			  	x = d3.event.sourceEvent.touches[0].clientX;
+			  	y = d3.event.sourceEvent.touches[0].clientY;
+			}
+			  				
+			d3.event.sourceEvent.stopPropagation();
+	   		d3.event.sourceEvent.preventDefault();
+	   				
+			if (overlap(x,y, currentdata.r) == false){
+				errorcount = errorcount + 1;
+				refreshlastcontact();	
+				return;
+			}
+			
+			d3.select("circle.underlay"+currentdata.id).style("fill", "green")
 			  								
 			var x0 = Math.floor(d3.select(this).attr("cx"));
 			var y0 =  Math.floor(d3.select(this).attr("cy"));
@@ -273,13 +277,30 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			var x1 =  Math.floor(d3.select("circle.end").attr("cx"));
 			var y1 =  Math.floor(d3.select("circle.end").attr("cy"));
 			var r1  =  Math.floor(d3.select("circle.end").attr("r"));
-		
+			
+			endpos = ({x:x, y:y});
 			
 			startlastcontact();
 		},
 			
 		drag = d3.behavior.drag()
 			  //.origin(function(d){return {x:d.x, y:d.y};})
+			  .on("dragstart", function(){
+			  		var x = d3.event.sourceEvent.clientX;
+			  		var y = d3.event.sourceEvent.clientY;
+			  		
+			  		if (x == undefined && y == undefined){
+			  				x = d3.event.sourceEvent.touches[0].clientX;
+			  				y = d3.event.sourceEvent.touches[0].clientY;
+			  		}
+			  				
+			  		d3.event.sourceEvent.stopPropagation();
+	   				d3.event.sourceEvent.preventDefault();
+			  		console.log(currentdata);
+			  		touchpos  = {x:x, y:y};
+			  		targetpos = {x:Math.round(currentdata.x), y:Math.round(currentdata.y), rpx: currentdata.r, rmm:pxtomm(currentdata.r)}
+			  		
+			  })
 			  .on("drag", dragged)
 			  .on("dragend", dragend),
 		
@@ -300,6 +321,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 		
 		touchmiss = d3.behavior.drag()
 			  .on("dragstart", function(){
+			  		errorcount = errorcount +1;
 			  		d3.event.sourceEvent.stopPropagation();
 	   				d3.event.sourceEvent.preventDefault();
 			  		missts = new Date().getTime();
@@ -331,7 +353,6 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 	   						d3.event.sourceEvent.preventDefault();
 			  				var tdata = d3.select(this).data()[0];
 			  				touchpos  = {x:x, y:y};
-			  				console.log(touchpos);
 			  				targetpos = {x:Math.round(tdata.x), y:Math.round(tdata.y), rpx: tdata.r, rmm:pxtomm(tdata.r)}
 			  				var id = tdata.id;
 			  				d3.select("circle.underlay"+id).style("fill", "green");
@@ -359,32 +380,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			return rscale(rdx);
 		},
 		
-		end   = function(){
-			results.name 	  = experimentname + moment().format("DD_MM_YY_HH:mm:ss");
-			results.type	  = "first_contact";
-			results.gridrows  = mingrid.rows;
-			results.gridcols  = mingrid.cols;
-			results.dpi  	  = dpi;
-			results.minmm 	  = radiusrange[0];
-			results.maxmm 	  = radiusrange[1];
-			results.step 	  = step;
-			results.runlength = runlength;
-			results.targetx   = targetdata.x;
-			results.targety   = targetdata.y;
-			results.targetr   = targetdata.r;	
-			var rcopy = $.extend({},results);
-			console.log(rcopy);
-			experiments.experiments.push(rcopy);
-			
-			var stored = window.localStorage.getObject("experiment") || [];
-			stored.push(rcopy);
-			window.localStorage.setObject("experiment", stored)
-			
-			reset(function(){
-				console.log("end of experiment!!");
-			});
-		},
-		
+	
 		reset = function(callback){
 			
 			results['results'] = [];
@@ -616,47 +612,68 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 	  			  .text("experiment two")	  
 				  .call(d3.behavior.drag().on("dragstart", function(){reset(startlastcontact);}))
 				  
-			cpanel.append("rect")
-				  .attr("rx", 5)
-				  .attr("x",  controlsettings.x+padding + 2*buttonwidth + 2*padding)
-				  .attr("y",  height-buttonheight-padding)
-				  .attr("width", buttonwidth)
-				  .attr("height",buttonheight)
-				  .style("fill", "white")
-				  .style("fill-opacity", 1.0)
-				  .style("stroke", "black")
-				  .style("stroke-width", 1)				
-				  .call(d3.behavior.drag().on("dragstart", showdata))
-		
-			cpanel
-				  .append("text")
-				  .attr("class", "buttonlabel")
-				  .attr("dy", ".3em")
-	  			  .attr("x", controlsettings.x+padding + 2*buttonwidth + 2*padding + buttonwidth/2)
-				  .attr("y", height-buttonheight-padding + buttonheight/2)	
-				  .attr("text-anchor", "middle")
-	  			  .style("fill", "#000")
-	  			  .style("font-size", (buttonheight*0.5 + "px"))
-	  			  .text("data")	  
-				  .call(d3.behavior.drag().on("dragstart", showdata))
+			
 		},
 		
-		showdata = function(){
-			d3.select("div#results")
-			  				.transition()
-			  				.duration(800)
-			  			    .style("left", "0px");
+		refreshlastcontact = function(){
+			
+			start = new Date().getTime();
+			
+			svg.selectAll("circle.start")
+				.attr("cx", currentdata.x)
+				.attr("cy", currentdata.y)	
+			
+			svg.select("circle.end")
+					.style("fill", "red");		
 		},
 		
 		startlastcontact  = function(){
+		 	
+		 	svg.select("circle.end")
+					.style("fill", "red");
 		  	
-			var data = [{x:randomx(), y:randomy(), r:randomr()}];
-			
-			if (positions.length > 0){
-				var data = [positions.shift()]
+		  	if (runstep == 0){
+				console.log("experiment starting");
+			}
+			else{
+				stop = new Date().getTime();//performance.now();
+				
+				var pxdistance = Math.sqrt(((targetpos.x-targetdata.x)*(targetpos.x-targetdata.x)) + ((targetpos.y-targetdata.y)*(targetpos.y-targetdata.y)));
+				var mmdistance = pxtomm(pxdistance);
+				
+				var endpxdistance = Math.sqrt(((endpos.x-targetdata.x)*(endpos.x-targetdata.x)) + ((endpos.y-targetdata.y)*(endpos.y-targetdata.y)));
+				var endmmmdistance =  pxtomm(endpxdistance);
+				
+				
+				results['results'].push({
+					duration:(stop-start),
+					touchpos: touchpos.x + "," + touchpos.y,
+					targetpos: targetpos.x + "," + targetpos.y,
+					targetmm: Math.floor(targetpos.rmm),
+					targetpx: Math.floor(targetpos.rpx),
+					pxdistance: Math.floor(pxdistance),
+					mmdistance: Math.floor(mmdistance),	
+					endpxdistance:  Math.floor(endpxdistance),
+					endmmdistance: Math.floor(endmmmdistance),
+					errors: errorcount
+				})
+				errorcount = 0;
 			}
 			
 			
+			if (runstep == runlength){
+				endlastcontact();
+			}
+			
+			runstep+=1;
+			
+			var data = {x:randomx(), y:randomy(), r:randomr()};
+			
+			if (positions.length > 0){
+				data = positions.shift();
+			}
+			
+			currentdata = $.extend([],data);
 			//create a new random position if these intersect, can do better than attempts - should check if possible
 			//not to intersect!
 			
@@ -676,7 +693,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 					
 			
 			var source = svg.selectAll("circle.start")
-							.data(data, function(d){return [d.x,d.y,d.r]})
+							.data([data], function(d){return [d.x,d.y,d.r]})
 			
 			source.enter()
 						.append("circle")
@@ -696,11 +713,38 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			
 		},
 		
+		endlastcontact   = function(){
+		
+			results.name 	  = "lc_" + experimentname + "_" + moment().format("DD_MM_YY_HH:mm:ss");
+			results.type	  = "last_contact";
+			results.gridrows  = mingrid.rows;
+			results.gridcols  = mingrid.cols;
+			results.dpi  	  = dpi;
+			results.minmm 	  = radiusrange[0];
+			results.maxmm 	  = radiusrange[1];
+			results.step 	  = step;
+			results.runlength = runlength;
+			results.targetx   = targetdata.x;
+			results.targety   = targetdata.y;
+			results.targetr   = targetdata.r;	
+			var rcopy = $.extend({},results);
+			console.log(rcopy);
+			experiments.push(rcopy);
+			
+			var stored = window.localStorage.getObject("experiment") || [];
+			stored.push(rcopy);
+			window.localStorage.setObject("experiment", stored)
+			
+			reset(function(){
+				console.log("end of last contact experiment!!");
+			});
+		},
+		
 		
 		startfirstcontact = function(){
 			
-			if (runstep==0){
-				console.log("runstep is zero!");
+			if (runstep == 0){
+			
 			}
 			else if (runstep==1){
 				
@@ -723,14 +767,15 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 					targetpx: Math.floor(targetpos.rpx),
 					pxdistance: Math.floor(pxdistance),
 					mmdistance: Math.floor(mmdistance),	
+					errors: errorcount,
 				})
-								
+				errorcount = 0;				
 				lasttargetpos = targetpos;
 			}
 			
 			
 			if (runstep == runlength){
-				end();
+				endfirstcontact();
 			}
 			
 			runstep+=1;
@@ -763,173 +808,29 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 				.remove();		
 		},
 		
-		fittsresults = function(){
+		endfirstcontact   = function(){
 		
-			var currentresults = d3.select("body")
-							.append("div")
-			  				.attr("id", "results")
-			  				.attr("class", "container")
-			  				.style("position", "absolute")
-			  				.style("top", "0px")
-			  				.style("left", width + "px")
-							.style("width", "100%")
-							.style("height", "100%")
-							.style("background", "#fff")
+			results.name 	  = "fc_" + experimentname + "_" + moment().format("DD_MM_YY_HH:mm:ss");
+			results.type	  = "first_contact";
+			results.gridrows  = mingrid.rows;
+			results.gridcols  = mingrid.cols;
+			results.dpi  	  = dpi;
+			results.minmm 	  = radiusrange[0];
+			results.maxmm 	  = radiusrange[1];
+			results.step 	  = step;
+			results.runlength = runlength;
+			var rcopy = $.extend({},results);
+			console.log(rcopy);
+			experiments.push(rcopy);
 			
-			var button = currentresults.append("button")
-									   .attr("class", "btn btn-primary")
-									   .attr("type", "submit")
-									   .text("done")
-									   .style("position", "absolute")
-			  						   .style("width", "100px")
-			  						   .style("height", "40px")
-			  						   .style("top",  "0px")
-			  						   
-			  						   .style("left", (width-100)+ "px")
-									   .call(d3.behavior.drag().on("dragstart", function(){d3.select("div#results")
-			  													.transition()
-			  													.duration(800)
-			  			    									.style("left", width + "px");}))
-									  
+			var stored = window.localStorage.getObject("experiment") || [];
+			stored.push(rcopy);
+			window.localStorage.setObject("experiment", stored)
 			
-			
-			var exp = currentresults.append("ul")
-									.attr("class", "nav nav-pills")
-									.attr("data-bind", "foreach:experiments");
-			
-			exp.append("li")
-				.append("a")
-				.attr("href", "#")
-				.attr("data-bind", "text:name, click:function(d){$parent.setcurrent($data)}");
-			
-									   	
-			
-			var res = currentresults.append("div")
-									.attr("class", "someresults") 		
-									.attr("data-bind", "visible:somethingtosee")
-									
-			var t1 = res.append("table")
-						.attr("class", "table table-striped")
-			
-			var	t1headrow = t1.append("thead")
-						  	  .append("tr")		
-			
-			
-			t1headrow.append("th")
-					 .text("rows")
-			t1headrow.append("th")
-					 .text("cols")
-			t1headrow.append("th")
-					 .text("dpi")
-			t1headrow.append("th")
-					 .text("min mm")		 
-			t1headrow.append("th")
-					 .text("max mm")
-			t1headrow.append("th")
-					 .text("step")
-			t1headrow.append("th")
-					 .text("run length")
-			t1headrow.append("th")
-					 .text("target x")
-			t1headrow.append("th")
-					 .text("target y")	
-			t1headrow.append("th")
-					 .text("target radius")
-			
-			var t1param = t1.append("tbody")
-								  .append("tr");
-			
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.gridrows")
-			
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.gridcols")
-					
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.dpi");			  		
-			
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.minmm");	
-			
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.maxmm");	
-					
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.step");			
-			
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.runlength");
-			
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.targetx");
-			
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.targety");
-			
-			t1param.append("td")
-					.attr("data-bind", "text:currentexperiment.targetr");
-										  			
-										  			
-										  			
-										  			 		 	 						  			 		 	 	
-			var t2 = res.append("table")
-						  		   .attr("class", "table table-striped")
-						  			
-							
-			var	t2headrow = t2.append("thead")
-						  .append("tr")
-				
-				t2headrow.append("th")
-					   .text("duration (ms)")
-				
-				t2headrow.append("th")
-					   .text("target position")
-				
-				t2headrow.append("th")
-						.text("target radius (mm)")
-				
-				t2headrow.append("th")
-						.text("target radius (px)")
-						
-				t2headrow.append("th")
-						.text("touch position")
-				
-				t2headrow.append("th")
-					   .text("distance (px)")
-				
-				t2headrow.append("th")
-						.text("distance (mm)")
-
-			 var t2resultset = t2.append("tbody")
-						  	.attr("data-bind", "foreach:currentexperiment.results")
-			
-			 var t2resultrow = t2resultset.append("tr")
-				t2resultrow.append("td")
-					 .attr("data-bind", "text:duration")
-			
-				t2resultrow.append("td")
-					 .attr("data-bind", "text:targetpos")
-				
-				t2resultrow.append("td")
-					 .attr("data-bind", "text:targetmm")
-					 
-				t2resultrow.append("td")
-					 .attr("data-bind", "text:targetpx")
-					 
-						 
-				t2resultrow.append("td")
-					 .attr("data-bind", "text:touchpos")
-			
-				t2resultrow.append("td")
-					 .attr("data-bind", "text:pxdistance")
-			
-				t2resultrow.append("td")
-					 .attr("data-bind", "text:mmdistance")					  
-			
-			ko.applyBindings(experiments,$("#results")[0]);
-			   
+			reset(function(){
+				console.log("end of experiment!!");
+			});
 		},
-		
 		
 		init = function(){
 			
@@ -938,8 +839,6 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			
 			//startlastcontact();
 			settings();
-			fittsresults();
-		
 			
 			d3.select("g.container")
 				.insert("rect", ":first-child")
