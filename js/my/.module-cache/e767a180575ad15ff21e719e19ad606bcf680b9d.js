@@ -33,18 +33,13 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		
 		handleExperimentDelete: function(){
 			
-			console.log("am in handle experiment delete");
-			
 			var experimentnames = this.experiments.map(function(item){
 				return item.name;
 			});
 			
-			var newexperiments = $.extend([], this.experiments);
 			var indextodelete = experimentnames.indexOf(this.currentExperiment.name);
-			newexperiments.splice(indextodelete,1);
-			
-			window.localStorage.setObject("experiment", newexperiments);
-			this.setState({data:newexperiments})
+			this.experiments.splice(indextodelete,1);
+			window.localStorage.getObject("experiment");
 		},
 		
 		getInitialState: function(){

@@ -33,18 +33,13 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		
 		handleExperimentDelete: function(){
 			
-			console.log("am in handle experiment delete");
-			
 			var experimentnames = this.experiments.map(function(item){
 				return item.name;
 			});
 			
-			var newexperiments = $.extend([], this.experiments);
 			var indextodelete = experimentnames.indexOf(this.currentExperiment.name);
-			newexperiments.splice(indextodelete,1);
-			
-			window.localStorage.setObject("experiment", newexperiments);
-			this.setState({data:newexperiments})
+			this.experiments.splice(indextodelete,1);
+			window.localStorage.getObject("experiment");
 		},
 		
 		getInitialState: function(){
@@ -95,31 +90,15 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		render: function(){
 			return (
 				
-				React.createElement("div", {className: "row"}, 
-					React.createElement("div", {className: "col-md-12"}, 
+				React.createElement("div", {class: "row"}, 
+					React.createElement("div", {class: "col-md-12"}, 
 						React.createElement("div", {className: "results"}, 
 							React.createElement("h2", null, "results"), 
-							React.createElement("div", {className: "row"}, 
-								React.createElement("div", {className: "col-md-12"}, 
-									React.createElement(ResultManage, {experiment: this.state.experiment, experimentEmail: this.handleExperimentEmail, experimentDelete: this.handleExperimentDelete})
-								)
-							), 
-							React.createElement("div", {className: "row"}, 
-								React.createElement("div", {className: "col-md-12"}, 
-									React.createElement(ResultNav, {data: this.state.data, experimentSelected: this.handleExperimentSelected})
-								)
-							), 
-							React.createElement("div", {className: "row"}, 
-								React.createElement("div", {className: "col-md-12"}, 
-									React.createElement(ExperimentParameters, {experiment: this.state.experiment})
-								)
-							), 
-							React.createElement("div", {className: "row"}, 
-								React.createElement("div", {className: "col-md-12"}, 
-									React.createElement(ExperimentResults, {experiment: this.state.experiment}), 
-									React.createElement(ExperimentCSV, {parameters: this.state.parameterscsv, results: this.state.resultscsv})
-								)
-							)
+							React.createElement(ResultManage, {experiment: this.state.experiment, experimentEmail: this.handleExperimentEmail, experimentDelete: this.handleExperimentDelete}), 
+							React.createElement(ResultNav, {data: this.state.data, experimentSelected: this.handleExperimentSelected}), 
+							React.createElement(ExperimentParameters, {experiment: this.state.experiment}), 
+							React.createElement(ExperimentResults, {experiment: this.state.experiment}), 
+							React.createElement(ExperimentCSV, {parameters: this.state.parameterscsv, results: this.state.resultscsv})
 						)
 					)
 				)

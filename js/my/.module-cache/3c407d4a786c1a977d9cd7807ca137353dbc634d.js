@@ -24,27 +24,13 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		},
 		
 		handleExperimentEmail: function(email){
-			if (this.currentExperiment){
-				var subject	 = this.currentExperiment.name; 
-				var body  	 = this.parametersToCSV(this.currentExperiment) + "\n" +  this.resultsToCSV(this.currentExperiment);
-				window.open('mailto:' + email + "?subject=" + subject + "&body="+body);
-			}
+			console.log("would email experiment!!");
+			console.log(email);
+			window.open('mailto:' + email + "?subject=myexperiment&body=hello");
 		},
 		
 		handleExperimentDelete: function(){
-			
-			console.log("am in handle experiment delete");
-			
-			var experimentnames = this.experiments.map(function(item){
-				return item.name;
-			});
-			
-			var newexperiments = $.extend([], this.experiments);
-			var indextodelete = experimentnames.indexOf(this.currentExperiment.name);
-			newexperiments.splice(indextodelete,1);
-			
-			window.localStorage.setObject("experiment", newexperiments);
-			this.setState({data:newexperiments})
+			console.log("would delete experiment!!");
 		},
 		
 		getInitialState: function(){
@@ -57,7 +43,9 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		},
 		
 		parametersToCSV: function(experiment){
-		
+			console.log("turning to csv:")
+			console.log(experiment);
+			
 			var keys = Object.keys(experiment).map(function(item){
 				return item;
 			}).filter(function(item){
@@ -68,81 +56,29 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 				return experiment[item];
 			});
 			
-			return keys.join(";") + "\n" + params.join(";");
+			console.log(keys);
+			console.log(params);
+		
 		},
 		
 		resultsToCSV: function(experiment){
-			var results = experiment.results;
-			if (results.length > 0){
-				//get the unique keys
-				var keys = Object.keys(results[0]).map(function(item){
-					return item;
-				});
-			
-				var csvarray = [];
-				
-				results.forEach(function(result){
-					var values = keys.map(function(item){
-						return result[item];
-					});
-					csvarray.push(values.join(";"));
-					console.log(values.join(";"));
-				});
-			}
-			return (keys.join(";") + "\n" + csvarray.join("\n"));
+			console.log("turning to csv:")
+			console.log(experiment);
+			return "a,b,c,d,e";
 		},
 		
 		render: function(){
 			return (
-				
-				React.createElement("div", {className: "row"}, 
-					React.createElement("div", {className: "col-md-12"}, 
-						React.createElement("div", {className: "results"}, 
-							React.createElement("h2", null, "results"), 
-							React.createElement("div", {className: "row"}, 
-								React.createElement("div", {className: "col-md-12"}, 
-									React.createElement(ResultManage, {experiment: this.state.experiment, experimentEmail: this.handleExperimentEmail, experimentDelete: this.handleExperimentDelete})
-								)
-							), 
-							React.createElement("div", {className: "row"}, 
-								React.createElement("div", {className: "col-md-12"}, 
-									React.createElement(ResultNav, {data: this.state.data, experimentSelected: this.handleExperimentSelected})
-								)
-							), 
-							React.createElement("div", {className: "row"}, 
-								React.createElement("div", {className: "col-md-12"}, 
-									React.createElement(ExperimentParameters, {experiment: this.state.experiment})
-								)
-							), 
-							React.createElement("div", {className: "row"}, 
-								React.createElement("div", {className: "col-md-12"}, 
-									React.createElement(ExperimentResults, {experiment: this.state.experiment}), 
-									React.createElement(ExperimentCSV, {parameters: this.state.parameterscsv, results: this.state.resultscsv})
-								)
-							)
-						)
-					)
+				React.createElement("div", {className: "results"}, 
+					React.createElement(ResultManage, {data: this.state.data, experimentEmail: this.handleExperimentEmail, experimentDelete: this.handleExperimentDelete}), 
+					React.createElement(ResultNav, {data: this.state.data, experimentSelected: this.handleExperimentSelected}), 
+					React.createElement(ExperimentParameters, {experiment: this.state.experiment}), 
+					React.createElement(ExperimentResults, {experiment: this.state.experiment})
 				)
 			);
 		}
 	});
 
-	var ExperimentCSV = React.createClass({displayName: "ExperimentCSV",
-	
-		render: function(){
-			return(
-				React.createElement("div", null, 
-					React.createElement("pre", null, 
-						this.props.parameters
-					), 
-					React.createElement("pre", null, 
-						this.props.results
-					)
-				)
-			)
-		}
-	});
-	
 	var ResultManage = React.createClass({displayName: "ResultManage",
 		
 		handleSubmit: function(e){
@@ -158,14 +94,11 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		},
 		
 		render: function(){
-			if (this.props.experiment.results == undefined)
-				return (React.createElement("div", null))
-				
 			return(
 				React.createElement("nav", {className: "nav navbar-default"}, 
 					React.createElement("div", {className: "container-fluid"}, 
 						React.createElement("div", {className: "navbar-header"}, 
-							React.createElement("a", {className: "navbar-brand", href: "#"}, "manage")
+							React.createElement("a", {className: "navbar-brand", href: "#"}, "results")
 						), 
 						React.createElement("div", {className: "collapse navbar-collapse"}, 
 							React.createElement("form", {className: "navbar-form navbar-left", onSubmit: this.handleSubmit}, 
@@ -173,7 +106,7 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 									React.createElement("input", {type: "text", ref: "email", className: "form-control", placeholder: "your email address"})
 								), 
 								React.createElement("button", {type: "submit", className: "btn btn-default"}, "Email this experiment"), 
-								React.createElement("button", {type: "button", className: "btn btn-default", onClick: this.props.experimentDelete}, "Delete this experiment")
+								React.createElement("button", {type: "button", className: "btn btn-default", onclick: this.props.experimentDelete}, "Delete this experiment")
 							)
 						)
 					)

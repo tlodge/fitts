@@ -416,7 +416,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			var rowspacing = width/15;
 			var padding = width/50;
 			var buttonheight = height/15;
-			var buttonwidth  = (width/2 - padding*4)/3
+			var buttonwidth  = (width/2 - padding*3)/2
 			var selectradius = padding/2;
 			var cpanel = svg.append("g")
 							.attr("class", "controls")

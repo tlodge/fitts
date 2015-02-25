@@ -39,12 +39,11 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 				return item.name;
 			});
 			
-			var newexperiments = $.extend([], this.experiments);
 			var indextodelete = experimentnames.indexOf(this.currentExperiment.name);
-			newexperiments.splice(indextodelete,1);
+			console.log("am deleting :" + indextodelete);
 			
-			window.localStorage.setObject("experiment", newexperiments);
-			this.setState({data:newexperiments})
+			this.experiments.splice(indextodelete,1);
+			window.localStorage.getObject("experiment");
 		},
 		
 		getInitialState: function(){

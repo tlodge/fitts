@@ -6,6 +6,8 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		
 		experiments: [],
 		
+		
+		
 		loadResultsFromStorage: function(){
 			this.experiments = window.localStorage.getObject("experiment");
 			this.setState({data:this.experiments})
