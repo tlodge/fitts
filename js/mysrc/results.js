@@ -33,7 +33,6 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		
 		handleExperimentDelete: function(){
 			
-			console.log("am in handle experiment delete");
 			
 			var experimentnames = this.experiments.map(function(item){
 				return item.name;
@@ -48,7 +47,7 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		},
 		
 		getInitialState: function(){
-			return {data:[], experiment:{}, csv:""};
+			return {data:[], experiment:{}, parameterscsv:"", resultscsv:""};
 		},
 		
 		componentDidMount: function(){
@@ -86,7 +85,7 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 						return result[item];
 					});
 					csvarray.push(values.join(";"));
-					console.log(values.join(";"));
+					
 				});
 			}
 			return (keys.join(";") + "\n" + csvarray.join("\n"));
@@ -130,6 +129,9 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 	var ExperimentCSV = React.createClass({
 	
 		render: function(){
+			if (this.props.parameters==""){
+				return (<div></div>)
+			}
 			return(
 				<div>
 					<pre>

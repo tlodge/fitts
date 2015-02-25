@@ -47,7 +47,7 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		},
 		
 		getInitialState: function(){
-			return {data:[], experiment:{}, parameterscsv:"", resultscsv:""};
+			return {data:[], experiment:{}, csv:""};
 		},
 		
 		componentDidMount: function(){
@@ -129,9 +129,6 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 	var ExperimentCSV = React.createClass({displayName: "ExperimentCSV",
 	
 		render: function(){
-			if (this.props.parameters==""){
-				return (React.createElement("div", null))
-			}
 			return(
 				React.createElement("div", null, 
 					React.createElement("pre", null, 
