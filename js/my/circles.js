@@ -106,6 +106,10 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 		
 		
 		createdata = function(){
+		
+			console.log("creating data for dpi " + dpi);
+			console.log(radiusrange[0] + " -> " + radiusrange[1]);
+			console.log(Math.floor(mmtopx(radiusrange[0])) + " -> " + Math.floor(mmtopx(radiusrange[1])));
 			
 			grid = [];
 			values = [];
@@ -420,7 +424,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			var selectradius = padding/2;
 			var cpanel = svg.append("g")
 							.attr("class", "controls")
-							.attr("transform", "translate(0,0)")
+							.attr("transform", "translate(" + width + ",0)")
 						
 							 
 			cpanel.append("rect")
@@ -458,8 +462,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 							name:"DPI",
 							components:[
 								{name:"dpi", id:"dpi", type:"slider", min:30, max:500, value:dpi, callback:function(value){
-									dpi = parseInt(value);
-
+									dpi = Math.floor(value);
 									createdata();
 								}},
 							]
