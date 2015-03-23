@@ -101,10 +101,10 @@ define(['jquery','d3', 'knockout'], function($, d3, ko){
 		},
 	
 		create = function(options){
-			
+			var rowspacing  = 10;
 			var hook = options.hook;
 			var x0  = options.x;
-			var y0 = options.y; 
+			var y0 = options.y + rowspacing; 
 			var width = options.width;
 			var height = options.height;
 			var data = options.data; 
@@ -115,15 +115,15 @@ define(['jquery','d3', 'knockout'], function($, d3, ko){
 				});	
 			});
 				
-			var rowspacing  = height/50;
+			
 			var colspacing  = width/50;
 			
 			
-			var groupheight = (height / data.length) - (2*rowspacing);
+			var groupheight = ((height-rowspacing*2) / data.length);
 			var headerheight = groupheight / 4;
-			var leftw 	= (2/10 * width)  
-			var middlew = (5/10 * width) 
-			var rightw 	= (3/10 * width) 
+			var leftw 	= (1/10 * width)  
+			var middlew = (7/10 * width) 
+			var rightw 	= (2/10 * width) 
 			
 			var groups = hook.append("g")
 								 .attr("class", "groups")

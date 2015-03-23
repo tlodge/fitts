@@ -188,6 +188,7 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 		render: function(){
 			return(
 				<tr>
+					<th>{this.props.line.ts}</th>
 					<th>{this.props.line.duration}</th>
 					<th>{this.props.line.targetpos}</th>
 					<th>{this.props.line.targetmm}</th>
@@ -219,6 +220,7 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 				<table className="table table-striped">
 					<thead>
 						<tr>
+							<th>timestamp</th>
 							<th>duration (ms)</th>
 							<th>target position</th>
 							<th>target radius (mm)</th>

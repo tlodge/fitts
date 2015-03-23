@@ -390,7 +390,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			d3.select("g.controls")
 			  				.transition()
 			  				.duration(800)
-			  			  	.attr("transform", "translate(" + (width/2) + ",0)")
+			  			  	.attr("transform", "translate(" + (width) + ",0)")
 			  			    
 			createdata();
 			
@@ -416,11 +416,11 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			var rowspacing = width/15;
 			var padding = width/50;
 			var buttonheight = height/15;
-			var buttonwidth  = (width/2 - padding*3)/2
+			var buttonwidth  = (width - padding*4)/3
 			var selectradius = padding/2;
 			var cpanel = svg.append("g")
 							.attr("class", "controls")
-							.attr("transform", "translate(" + (width/2) + ",0)")
+							.attr("transform", "translate(0,0)")
 						
 							 
 			cpanel.append("rect")
@@ -532,10 +532,10 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 	
 			var controlsettings = {
 					hook:cpanel,
-					x: width/2,
-					y: 0+padding,
-					width: width/2-padding*2,
-					height: height-padding, 
+					x: 0,
+					y: 0,
+					width: width-padding*2,
+					height: height-(buttonheight+padding+padding), 
 					data: controlsdata
 			}
 			
@@ -554,7 +554,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 			cpanel.append("rect")
 				  .attr("x",  controlsettings.x)
 				  .attr("y",  (height)-buttonheight-padding-padding)
-				  .attr("width", width/2)
+				  .attr("width", width)
 				  .attr("height",buttonheight+padding+padding)
 				  .style("fill", "#30363c")
 				  .style("fill-opacity", 1.0)
@@ -611,7 +611,35 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 	  			  .style("font-size", (buttonheight*0.3 + "px"))
 	  			  .text("experiment two")	  
 				  .call(d3.behavior.drag().on("dragstart", function(){reset(startlastcontact);}))
+			
+			cpanel.append("rect")
+				  .attr("rx", 5)
+				  .attr("x",  controlsettings.x+ padding + buttonwidth + padding + buttonwidth + padding)
+				  .attr("y",  height-buttonheight-padding)
+				  .attr("width", buttonwidth)
+				  .attr("height",buttonheight)
+				  .style("fill", "white")
+				  .style("fill-opacity", 1.0)
+				  .style("stroke", "black")
+				  .style("stroke-width", 1)				
+				  .call(d3.behavior.drag().on("dragstart", function(){
+				  	window.location="./results.html";
 				  
+				  }))
+		
+			cpanel
+				  .append("text")
+				  .attr("class", "buttonlabel")
+				  .attr("dy", ".3em")
+	  			  .attr("x", controlsettings.x+padding + buttonwidth + padding + buttonwidth + padding + buttonwidth/2)
+				  .attr("y", height-buttonheight-padding + buttonheight/2)	
+				  .attr("text-anchor", "middle")
+	  			  .style("fill", "#000")
+	  			  .style("font-size", (buttonheight*0.3 + "px"))
+	  			  .text("results")	  
+				  .call(d3.behavior.drag().on("dragstart", function(){
+				  		window.location="./results.html";
+				  }));
 			
 		},
 		
@@ -646,6 +674,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 				
 				
 				results['results'].push({
+					ts:start,
 					duration:(stop-start),
 					touchpos: touchpos.x + "," + touchpos.y,
 					targetpos: targetpos.x + "," + targetpos.y,
@@ -760,6 +789,7 @@ define(['jquery','d3', 'controls', 'knockout', 'moment'], function($, d3, contro
 				
 				
 				results['results'].push({
+					ts:start,
 					duration:(stop-start),
 					touchpos: touchpos.x + "," + touchpos.y,
 					targetpos: targetpos.x + "," + targetpos.y,
