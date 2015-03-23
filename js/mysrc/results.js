@@ -357,7 +357,9 @@ define(['jquery','react', 'showdown'], function($, React, Showdown){
 
 	var NavItem = React.createClass({
 		
-		clicked: function(){
+		clicked: function(e){
+			console.log("preventing default!");
+			e.preventDefault();
 			this.props.handleSelected(this.props.name);
 		},
 		
