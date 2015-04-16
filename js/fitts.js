@@ -5,16 +5,14 @@ require.config({
         "jquery": "../jquery/jquery-2.1.0.min",
 		"d3": "../d3/d3",
 		"knockout":"../knockout/knockout-3.1.0",
-		"moment": '../moment/moment.min',
-		"react": '../react/react',
-		"showdown": '../react/showdown.min',
+		"moment": '../moment/moment.min'
     },
     
     "shim": {
     }
 });
 
-require(['jquery','circles', 'results'], function($,circles, results) {
+require(['jquery','circles'], function($,circles) {
 	
 	//add some prototype methods to storage to support saving,loading objects
 	

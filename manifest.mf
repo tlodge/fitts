@@ -1,0 +1,24 @@
+CACHE MANIFEST
+
+index.html
+results.html
+
+#js
+js/fitts.js
+js/fitts_results.js
+js/my/circles.js	
+js/my/controls.js	
+js/my/results.js	
+js/my/util.js
+
+#js libs
+js/require/require.js
+js/jquery/jquery-2.1.0.min.js
+js/moment/moment.min.js
+js/react/react.js
+js/react/showdown.min.js
+js/d3/d3.js
+js/knockout/knockout-3.1.0.js
+
+#css
+bootstrap/css/bootstrap.css
